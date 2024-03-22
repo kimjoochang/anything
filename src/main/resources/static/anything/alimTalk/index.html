@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <style>
+
+        /* 테이블 행 */
+        #inputTableDiv > td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        #inputTableDiv th {
+            padding-right: 20px;
+            text-align: left;
+            text-align: center;
+            color: #000;
+        }
+
+        /* 테이블 올렸을 때 */
+        #inputTableDiv > tbody tr:hover {
+            background-color: #d3d3d3;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        #inputTableDiv > th,
+        #inputTableDiv > td {
+            border-left: none;
+            border-right: none;
+        }
+        /* lists reset */
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            grid-gap: 0.5rem;
+        }
+
+        li {
+            display: grid;
+            grid-template-columns: 0 1fr;
+            align-items: start;
+            line-height: 1.25;
+        }
+
+        ul li::before {
+            content: attr(data-icon);
+        }
+        .hide {
+            position: absolute;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        show {
+            display: block;
+            opacity: 0.05;
+        }
+
+        .modal_body {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 450px;
+            height: 385px;
+            padding-left: 20px;
+            padding-right: 40px;
+            padding-top: 20px;
+            text-align: center;
+            background-color: lightgray;
+            border-radius: 10px;
+            box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
+            z-index: 999;
+            transform: translateX(-50%) translateY(-50%);
+        }
+        input, textarea {
+            width: 250px;
+            height: 32px;
+            font-size: 15px;
+            border: 0;
+            border-radius: 10px;
+            outline: none;
+            padding-left: 10px;
+            background-color: rgb(233, 233, 233);
+        }
+        textarea {
+            height: 6.25em;
+            border: none;
+            resize: none;
+        }
+
+        .modal_btn {
+            border: 3px;
+            border-radius: 5px;
+            outline: none;
+            background-color: rgb(233, 233, 233);
+        }
+    </style>
+</head>
+<body>
+    <div id="modal" class="hide">
+        <div id="modal_body" class="modal_body">
+            <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
+                <ul class="list-group">
+                    <li>09:30</li>
+                    <li>12:30</li>
+                    <li>15:30</li>
+                    <li>
+                        <button class="modal_btn" style="width:22px; margin-left:22px;">+</button>
+                    </li>
+
+                </ul>
+            </div>
+            <div id="inputTableDiv" style="float: right; width:78%;">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>일시</th>
+                            <td>
+                                <input id="selectedDt" type="text" name="" readonly="true">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>알림 시간</th>
+                            <td>
+                                <input type="text" name="" value="09:30">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td>
+                                <input type="text" name="" value="제목">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td>
+                                <textarea rows="6" style="height:200px;">내용</textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="clear: both;"></div>
+            <div id="btnDiv" style="margin-top:20px;">
+                <button class="modal_btn">저장</button>
+                <button id="clsBtn" class="modal_btn">취소</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal_background" class="hide" style="width:100%; height:100%; position: absolute;"></div>
+    <div id="contentDiv" style="overflow: auto">
+        <div id="header">
+        <div id="leftDiv" style="float: left">
+            <div style="font-weight:bold;font-size:24px" class="" spellcheck="false">잡동사니</div>
+        </div>
+
+        <div id="rightDiv" style="float: right">
+            <span style="font-weight:bold;font-size:24px" class="">OOO 님</span>
+            <button style="margin-left:10px; font-weight:bold;font-size:18px" class="">로그아웃</button>
+        </div>
+
+        </div>
+        <div style="clear: both;"></div>
+        <hr style=" margin-top: 10px; margin-bottom: 30px;"/>
+        <div>
+            <div id="calendar" style="width:90%; margin: 0 auto; over"></div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const calendarEl = $('#calendar')[0];
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView : 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
+            headerToolbar : { // 헤더에 표시할 툴 바
+                start : 'prev next today',
+                center : 'title',
+                end : 'dayGridMonth,dayGridWeek,dayGridDay'
+            },
+            titleFormat : function(date) {
+                return date.date.year + '년 ' + (parseInt(date.date.month) + 1) + '월';
+            },
+            //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
+            selectable : true, // 달력 일자 드래그 설정가능
+            droppable : true,
+            editable : true,
+            nowIndicator: true, // 현재 시간 마크
+            locale: 'ko' // 한국어 설정
+        });
+        calendar.render();
+        // 모달 열기
+        $('#calendar').on('click','.fc-day', function(){
+            if ($('#modal').hasClass('hide')) {
+                $('#modal').removeClass('hide');
+                $('#modal_background').removeClass('hide');
+
+                $('#modal').addClass('show');
+                $('#modal_background').addClass('show');
+
+                $('#contentDiv').css('opacity', '0.05');
+                $('#contentDiv').css('overflow', 'hidden');
+                $('#contentDiv').css('pointer-events','none');
+
+                $('#selectedDt').val(this.dataset.date);
+                $('html').animate({scrollTop: 0}, 'fast');
+            }
+        });
+        // 모달 닫기
+        $('#modal_background').on('click', function(){
+            if ($('#modal').hasClass('show')) {
+                closeModal();
+            }
+        });
+        $('#clsBtn').on('click', function(){
+            if ($('#modal').hasClass('show')) {
+                closeModal();
+            }
+        });
+    });
+
+    const closeModal = function() {
+        $('#modal').addClass('hide');
+        $('#modal_background').addClass('hide');
+
+        $('#modal').removeClass('show');
+        $('#modal_background').removeClass('show');
+
+        $('#contentDiv').css('overflow', 'auto');
+        $('#contentDiv').css('opacity', '1');
+        $('#contentDiv').css('pointer-events','auto');
+    }
+
+</script>
