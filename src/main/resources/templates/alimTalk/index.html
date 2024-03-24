@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Test</title>
     <style>
-
         /* 테이블 행 */
         #inputTableDiv > td {
             padding: 8px;
@@ -104,6 +103,7 @@
     </style>
 </head>
 <body>
+<form id="alimForm" method="post" action="insert">
     <div id="modal" class="hide">
         <div id="modal_body" class="modal_body">
             <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
@@ -123,25 +123,26 @@
                         <tr>
                             <th>일시</th>
                             <td>
-                                <input id="selectedDt" type="text" name="" readonly="true">
+                                <input id="sendDt" name="sendDt" type="hidden">
+                                <input id="sendDd" type="text" name="sendDd" readonly="true">
                             </td>
                         </tr>
                         <tr>
                             <th>알림 시간</th>
                             <td>
-                                <input type="text" name="" value="09:30">
+                                <input id="sendTime" type="text">
                             </td>
                         </tr>
                         <tr>
                             <th>제목</th>
                             <td>
-                                <input type="text" name="" value="제목">
+                                <input id="title" type="text" name="title" value="제목">
                             </td>
                         </tr>
                         <tr>
                             <th>내용</th>
                             <td>
-                                <textarea rows="6" style="height:200px;">내용</textarea>
+                                <textarea id="content" rows="6" style="height:200px;" name="content">내용</textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -149,7 +150,7 @@
             </div>
             <div style="clear: both;"></div>
             <div id="btnDiv" style="margin-top:20px;">
-                <button class="modal_btn">저장</button>
+                <button class="modal_btn" onclick="action();">저장</button>
                 <button id="clsBtn" class="modal_btn">취소</button>
             </div>
         </div>
@@ -170,9 +171,10 @@
         <div style="clear: both;"></div>
         <hr style=" margin-top: 10px; margin-bottom: 30px;"/>
         <div>
-            <div id="calendar" style="width:90%; margin: 0 auto; over"></div>
+            <div id="calendar" style="width:90%; margin: 0 auto;"></div>
         </div>
     </div>
+</form>
 </body>
 </html>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
@@ -189,9 +191,6 @@
                 center : 'title',
                 end : 'dayGridMonth,dayGridWeek,dayGridDay'
             },
-            titleFormat : function(date) {
-                return date.date.year + '년 ' + (parseInt(date.date.month) + 1) + '월';
-            },
             //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
             selectable : true, // 달력 일자 드래그 설정가능
             droppable : true,
@@ -200,6 +199,13 @@
             locale: 'ko' // 한국어 설정
         });
         calendar.render();
+
+        $('#alimForm').submit(function () {
+           // TODO : 일자, 시간, 제목, 내용 validation 로직 추가 필요
+            const sendDt = $('#sendDd').val() + ' ' + $('#sendTime').val();
+            $('#sendDt').val(sendDt);
+        });
+
         // 모달 열기
         $('#calendar').on('click','.fc-day', function(){
             if ($('#modal').hasClass('hide')) {
@@ -213,23 +219,24 @@
                 $('#contentDiv').css('overflow', 'hidden');
                 $('#contentDiv').css('pointer-events','none');
 
-                $('#selectedDt').val(this.dataset.date);
+                $('#sendDd').val(this.dataset.date);
                 $('html').animate({scrollTop: 0}, 'fast');
             }
         });
-        // 모달 닫기
+        // 모달 주위 클릭 시 모달 닫기
         $('#modal_background').on('click', function(){
             if ($('#modal').hasClass('show')) {
                 closeModal();
             }
         });
+        // 닫기 버튼 클릭 시 모달 닫기
         $('#clsBtn').on('click', function(){
             if ($('#modal').hasClass('show')) {
                 closeModal();
             }
         });
     });
-
+    // 모달 닫기 함수
     const closeModal = function() {
         $('#modal').addClass('hide');
         $('#modal_background').addClass('hide');
@@ -241,5 +248,4 @@
         $('#contentDiv').css('opacity', '1');
         $('#contentDiv').css('pointer-events','auto');
     }
-
 </script>
