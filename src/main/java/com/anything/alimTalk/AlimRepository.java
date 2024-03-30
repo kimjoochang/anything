@@ -1,10 +1,11 @@
 package com.anything.alimTalk;
 
-import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Mapper
+@Repository
+//@Mapper
 public interface AlimRepository {
     List<AlimDto> list(AlimDto alimDto);
     int insertAction(AlimDto alimDto);

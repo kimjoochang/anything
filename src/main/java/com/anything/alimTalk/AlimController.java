@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class AlimController {
-    private IAlimService alimService;
+
+    private AlimService alimService;
     @GetMapping("alimTalk/index")
     public String index() {
         return "alimTalk/index";
