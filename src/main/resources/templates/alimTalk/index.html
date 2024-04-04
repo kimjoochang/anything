@@ -163,7 +163,7 @@
 
         <div id="rightDiv" style="float: right">
             <span style="font-weight:bold;font-size:24px" class="">OOO 님</span>
-            <button style="margin-left:10px; font-weight:bold;font-size:18px" class="">로그아웃</button>
+            <button type="button" style="margin-left:10px; font-weight:bold;font-size:18px" onclick="logout();">로그아웃</button>
         </div>
 
         </div>
@@ -246,5 +246,9 @@
         $('#contentDiv').css('overflow', 'auto');
         $('#contentDiv').css('opacity', '1');
         $('#contentDiv').css('pointer-events','auto');
+    }
+
+    const logout = function () {
+        location.href = '/login/logout';
     }
 </script>

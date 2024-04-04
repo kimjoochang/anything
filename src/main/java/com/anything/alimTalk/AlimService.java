@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@NoArgsConstructor
 //@Transactional
 public class AlimService implements IAlimService{
-    private final AlimRepository alimRepository;
+    private AlimRepository alimRepository;
     @Override
     public List<AlimDto> list(AlimDto alimDto) {
         return alimRepository.list(alimDto);

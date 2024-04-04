@@ -4,4 +4,5 @@ import java.util.Optional;
 
 public interface ILoginService {
     String getToken(String code);
+    void logout(String accessToken);
 }

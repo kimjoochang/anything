@@ -1,5 +1,6 @@
 package com.anything.alimTalk;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

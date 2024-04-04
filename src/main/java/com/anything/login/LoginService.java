@@ -56,7 +56,7 @@ public class LoginService implements ILoginService {
             try {
                 String line = br.readLine();
                 StringBuilder responseSb = new StringBuilder();
-                while(line != null){
+                if(line != null){
                     responseSb.append(line);
                 }
                 String response = responseSb.toString();
@@ -78,6 +78,22 @@ public class LoginService implements ILoginService {
         }
 
         return accessToken;
+    }
+
+    @Override
+    public void logout(String accessToken) {
+        String logoutURL = "https://kapi.kakao.com/v1/user/logout";
+        try {
+            URL url = new URL(logoutURL);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("AUTHORIZATION", "Bearer" + accessToken);
+
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
