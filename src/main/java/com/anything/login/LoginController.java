@@ -35,7 +35,6 @@ public class LoginController {
 
         HttpSession session = request.getSession(true);
         session.setAttribute("accessToken", accessToken);
-        System.out.println("로그인 후 session값 =======>" + session.getAttribute("accessToken"));
         return "/alimTalk/index";
     }
 
@@ -48,7 +47,6 @@ public class LoginController {
             service.logout(accessToken);
             session.invalidate();
         }
-        System.out.println("시발");
         return "redirect:/login/index";
     }
 }
