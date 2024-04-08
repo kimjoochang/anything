@@ -1,18 +1,15 @@
 package com.anything.alimTalk;
 
-import com.anything.base.BaseDto;
-import lombok.Builder;
+import com.anything.common.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
 public class AlimDto extends BaseDto {
     Long alimSeq;
     String title;
-    String content;
+    String description;
     String sendDt;
     String sendCd;
     String sendStusMsg;

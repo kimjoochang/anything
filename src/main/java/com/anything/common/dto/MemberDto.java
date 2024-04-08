@@ -1,4 +1,4 @@
-package com.anything.base;
+package com.anything.common.dto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,40 +1,43 @@
 package com.anything.login;
 
+import com.anything.config.KakaoConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.Session;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Optional;
+
+import static com.anything.config.KakaoConfig.*;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class LoginController {
 
     private final LoginService service;
-
+    private final KakaoConfig kakaoConfig;
     @GetMapping("login/index")
     public String index(Model model) {
-        String restApiKey = "9198d76291763c4e9833e8307e3449c6";
-        String redirectUri = "http://localhost:8080/login/callback";
-
-        String kakaoUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + restApiKey + "&redirect_uri=" + redirectUri + "&prompt=login";
-        model.addAttribute("kakaoUrl", kakaoUrl);
+        String loginUrl = kakaoConfig.loginApiUrl + "&client_id=" + kakaoConfig.apiKey + "&redirect_uri=" + kakaoConfig.redirecUri;
+        model.addAttribute("kakaoUrl", loginUrl);
         return "login/index";
     }
 
     @GetMapping("login/callback")
     public String kakaoLogin(HttpServletRequest request, String code) {
-        String accessToken = service.getToken(code);
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("accessToken", accessToken);
+        Optional<OauthToken> accessToken = service.getToken(code);
+        accessToken.orElseThrow(RuntimeException::new);
+
+        Optional<LoginDto> member = service.saveAction(accessToken.get());
+        member.orElseThrow(RuntimeException::new);
+
+        request.getSession(true).setAttribute("member", member);
+
         return "/alimTalk/index";
     }
 

@@ -1,6 +1,6 @@
 package com.anything.login;
 
-import com.anything.base.BaseDto;
+import com.anything.common.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
 

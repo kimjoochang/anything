@@ -5,4 +5,6 @@ public interface IAlimService {
     List<AlimDto> list(AlimDto alimDto);
     int insertAction(AlimDto alimDto);
     int updateAction(AlimDto alimDto);
+
+    boolean sendAction();
 }
