@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Optional;
 
-import static com.anything.config.KakaoConfig.*;
-
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -33,7 +31,7 @@ public class LoginController {
         Optional<OauthToken> accessToken = service.getToken(code);
         accessToken.orElseThrow(RuntimeException::new);
 
-        Optional<LoginDto> member = service.saveAction(accessToken.get());
+        Optional<MemberDto> member = service.saveAction(accessToken.get());
         member.orElseThrow(RuntimeException::new);
 
         request.getSession(true).setAttribute("member", member);

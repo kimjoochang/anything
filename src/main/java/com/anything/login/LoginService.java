@@ -3,6 +3,7 @@ package com.anything.login;
 import com.anything.common.service.ApiService;
 import com.anything.config.KakaoConfig;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -14,7 +15,10 @@ import org.springframework.util.MultiValueMap;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +30,7 @@ public class LoginService implements ILoginService {
     private final ApiService apiService;
 
     @Override
-    public Optional<LoginDto> saveAction(OauthToken oauthToken) {
+    public Optional<MemberDto> saveAction(OauthToken oauthToken) {
         ResponseEntity<String> userInfoResponse = null;
         try {
             userInfoResponse = apiService.callApi(kakaoConfig.userInfoUrl, oauthToken.getAccess_token(), null, HttpMethod.GET);
@@ -34,8 +38,20 @@ public class LoginService implements ILoginService {
             log.error(e.getMessage());
             return null;
         }
+
+        HashMap<String,Object> userInfoMap = new Gson().fromJson(String.valueOf(userInfoResponse.getBody()),HashMap.class);
+        LinkedTreeMap<String,Object> profileMap = (LinkedTreeMap<String, Object>)userInfoMap.get("properties");
+
+        Double id = (Double) userInfoMap.get("id");
+        String nickName = (String)profileMap.get("nickname");
+
+        MemberDto memberDto = new MemberDto();
+        memberDto.setMemberId(id.longValue());
+        memberDto.setNickname(nickName);
+
+        log.info(userInfoResponse.toString());
         // TODO : DB 저장 로직 구현 필요
-        return null;
+        return Optional.of(memberDto);
     }
 
     @Override
