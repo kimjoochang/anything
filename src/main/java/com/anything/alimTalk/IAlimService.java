@@ -2,9 +2,9 @@ package com.anything.alimTalk;
 
 import java.util.List;
 public interface IAlimService {
-    List<AlimDto> list(AlimDto alimDto);
-    int insertAction(AlimDto alimDto);
-    int updateAction(AlimDto alimDto);
+    List<AlimVO> list(AlimVO alimVO);
+    int insertAction(AlimVO alimVO);
+    int updateAction(AlimVO alimVO);
 
     boolean sendAction();
 }

@@ -1,4 +1,4 @@
-package com.anything.common.dto;
+package com.anything.common.vo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class BaseDto {
+public class BaseVO {
     Long memberId;
     Long regId;
     Date regDt;

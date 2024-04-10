@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
 <head>
     <meta charset="UTF-8">
@@ -103,6 +103,7 @@
     </style>
 </head>
 <body>
+
 <form id="alimForm" method="post" action="insert">
     <div id="modal" class="hide">
         <div id="modal_body" class="modal_body">
@@ -162,7 +163,7 @@
         </div>
 
         <div id="rightDiv" style="float: right">
-            <span style="font-weight:bold;font-size:24px" class="">OOO 님</span>
+            <span style="font-weight:bold;font-size:24px" class="" th:text="${session.member.nickname}"></span>
             <button type="button" style="margin-left:10px; font-weight:bold;font-size:18px" onclick="logout();">로그아웃</button>
         </div>
 

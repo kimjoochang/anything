@@ -3,7 +3,7 @@ package com.anything.login;
 import java.util.Optional;
 
 public interface ILoginService {
-    Optional<MemberDto> saveAction(OauthToken oauthToken);
-    Optional<OauthToken> getToken(String code);
+    Optional<MemberVO> saveAction(OauthTokenDto oauthTokenDto);
+    Optional<OauthTokenDto> getToken(String code);
     void logout(String accessToken);
 }

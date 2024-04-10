@@ -1,12 +1,12 @@
 package com.anything.alimTalk;
 
-import com.anything.common.dto.BaseDto;
+import com.anything.common.vo.BaseVO;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AlimDto extends BaseDto {
+public class AlimVO extends BaseVO {
     Long alimSeq;
     String title;
     String description;

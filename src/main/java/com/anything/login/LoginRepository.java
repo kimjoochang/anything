@@ -4,10 +4,12 @@ package com.anything.login;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @Mapper
 public interface LoginRepository {
-    List<MemberDto> list(MemberDto memberDto);
-    int insertAction(MemberDto memberDto);
-    int updateAction(MemberDto memberDto);
+    Optional<MemberVO> view(long memberId);
+    int insert(MemberVO member);
+    int updateToken(MemberVO member);
 }

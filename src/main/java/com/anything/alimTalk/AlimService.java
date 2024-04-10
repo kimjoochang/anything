@@ -1,9 +1,5 @@
 package com.anything.alimTalk;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -17,16 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,18 +22,18 @@ import java.util.Map;
 public class AlimService implements IAlimService{
     private final AlimRepository alimRepository;
     @Override
-    public List<AlimDto> list(AlimDto alimDto) {
-        return alimRepository.list(alimDto);
+    public List<AlimVO> list(AlimVO alimVO) {
+        return alimRepository.list(alimVO);
     }
 
     @Override
-    public int insertAction(AlimDto alimDto) {
-        return alimRepository.insertAction(alimDto);
+    public int insertAction(AlimVO alimVO) {
+        return alimRepository.insertAction(alimVO);
     }
 
     @Override
-    public int updateAction(AlimDto alimDto) {
-        return alimRepository.updateAction(alimDto);
+    public int updateAction(AlimVO alimVO) {
+        return alimRepository.updateAction(alimVO);
     }
 
     @Override

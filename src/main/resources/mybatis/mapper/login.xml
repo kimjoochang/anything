@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anything.login.LoginRepository">
+
+    <resultMap id="MemberResultMap" type="MemberVO">
+        <id column="MEMBER_ID" property="memberId"/>
+        <result column="NICKNAME" property="nickname"/>
+        <result column="TYPE" property="type"/>
+        <result column="ROLE" property="role"/>
+        <result column="EMAIL" property="email"/>
+        <result column="FILE_MAX_SIZE" property="fileMaxSize"/>
+        <result column="ACCESS_TOKEN" property="accessToken"/>
+        <result column="REFRESH_TOKEN" property="refreshToken"/>
+        <result column="REG_ID" property="regId"/>
+        <result column="REG_DT" property="regDt"/>
+        <result column="LOGIN_DT" property="loginDt"/>
+    </resultMap>
+
+    <select id="view" resultMap="MemberResultMap" parameterType="Long">
+        SELECT MEMBER_ID,
+               NICKNAME,
+               TYPE,
+               ROLE,
+               EMAIL,
+               FILE_MAX_SIZE,
+               ACCESS_TOKEN,
+               REFRESH_TOKEN,
+               REG_DT,
+               LOGIN_DT
+        FROM MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+
+    <insert id="insert" parameterType="com.anything.login.MemberVO">
+        INSERT INTO
+            MEMBER
+            (MEMBER_ID,         NICKNAME,           TYPE,
+             ROLE,              EMAIL,              FILE_MAX_SIZE,
+             ACCESS_TOKEN,      REFRESH_TOKEN,      LOGIN_DT)
+        VALUES
+            (#{memberId},       #{nickname},        #{type},
+             #{role},           #{email},           #{fileMaxSize},
+             #{accessToken},    #{refreshToken},    #{loginDt})
+    </insert>
+
+    <update id="updateToken" parameterType="com.anything.login.MemberVO">
+        UPDATE MEMBER
+           SET ACCESS_TOKEN  = #{accessToken},
+               REFRESH_TOKEN = #{refreshToken},
+               LOGIN_DT      = now()
+         WHERE MEMBER_ID = #{memberId}
+    </update>
+
+</mapper>

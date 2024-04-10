@@ -28,13 +28,13 @@ public class LoginController {
     @GetMapping("login/callback")
     public String kakaoLogin(HttpServletRequest request, String code) {
 
-        Optional<OauthToken> accessToken = service.getToken(code);
+        Optional<OauthTokenDto> accessToken = service.getToken(code);
         accessToken.orElseThrow(RuntimeException::new);
 
-        Optional<MemberDto> member = service.saveAction(accessToken.get());
+        Optional<MemberVO> member = service.saveAction(accessToken.get());
         member.orElseThrow(RuntimeException::new);
 
-        request.getSession(true).setAttribute("member", member);
+        request.getSession(true).setAttribute("member", member.get());
 
         return "/alimTalk/index";
     }

@@ -1,6 +1,10 @@
 package com.anything.login;
 
 import lombok.Data;
+import lombok.ToString;
+
+import java.util.Map;
+
 /*
 "access_token":"NhFpNBiXtkKY8UQStUqvaTNFix4sKTRCBK8KPXPsAAABjr4XHEOIenTzhLqDRQ",
 "token_type":"bearer",
@@ -12,11 +16,17 @@ import lombok.Data;
 [Date:"Mon, 08 Apr 2024 14:22:49 GMT", Content-Type:"application/json;charset=utf-8", Transfer-Encoding:"chunked", Connection:"keep-alive", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-XSS-Protection:"1; mode=block", X-Frame-Options:"DENY", X-Content-Type-Options:"nosniff", Kakao:"Talk", Access-Control-Allow-Origin:"*", Access-Control-Allow-Methods:"GET, POST, OPTIONS", Access-Control-Allow-Headers:"Authorization, KA, Origin, X-Requested-With, Content-Type, Accept"]>
 * */
 @Data
-public class OauthToken {
+@ToString
+public class OauthTokenDto {
     private String access_token;
     private String token_type;
     private String refresh_token;
     private int expires_in;
     private String scope;
     private int refresh_token_expries_in;
+
+    private Double id;
+    Map<String, Object> properties;
+    Map<String, Object> kakao_account;
+
 }

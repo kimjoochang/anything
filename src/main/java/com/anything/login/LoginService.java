@@ -1,6 +1,7 @@
 package com.anything.login;
 
 import com.anything.common.service.ApiService;
+import com.anything.config.FileConfig;
 import com.anything.config.KakaoConfig;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -15,8 +16,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -25,37 +26,52 @@ import java.util.Optional;
 @Slf4j
 @Transactional
 public class LoginService implements ILoginService {
-    private final LoginRepository loginRepository;
+    private final LoginRepository repository;
     private final KakaoConfig kakaoConfig;
+    private final FileConfig fileConfig;
     private final ApiService apiService;
 
     @Override
-    public Optional<MemberDto> saveAction(OauthToken oauthToken) {
+    public Optional<MemberVO> saveAction(OauthTokenDto oauthTokenDto) {
+        final String KAKAO = "kakao";
+
         ResponseEntity<String> userInfoResponse = null;
         try {
-            userInfoResponse = apiService.callApi(kakaoConfig.userInfoUrl, oauthToken.getAccess_token(), null, HttpMethod.GET);
+            userInfoResponse = apiService.callApi(kakaoConfig.userInfoUrl, oauthTokenDto.getAccess_token(), null, HttpMethod.GET);
+            log.info(userInfoResponse.toString());
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
         }
 
-        HashMap<String,Object> userInfoMap = new Gson().fromJson(String.valueOf(userInfoResponse.getBody()),HashMap.class);
-        LinkedTreeMap<String,Object> profileMap = (LinkedTreeMap<String, Object>)userInfoMap.get("properties");
+        OauthTokenDto userInfoDto = new Gson().fromJson(String.valueOf(userInfoResponse.getBody()),OauthTokenDto.class);
 
-        Double id = (Double) userInfoMap.get("id");
-        String nickName = (String)profileMap.get("nickname");
+        long memberId = userInfoDto.getId().longValue();
+        String accessToken = oauthTokenDto.getAccess_token();
+        String refreshToken = oauthTokenDto.getRefresh_token();
 
-        MemberDto memberDto = new MemberDto();
-        memberDto.setMemberId(id.longValue());
-        memberDto.setNickname(nickName);
+        Optional<MemberVO> orgMember = repository.view(memberId);
 
-        log.info(userInfoResponse.toString());
-        // TODO : DB 저장 로직 구현 필요
-        return Optional.of(memberDto);
+        if (orgMember.isPresent()) {
+            return repository.updateToken(orgMember.get().updateToken(accessToken,refreshToken).get()) == 0 ? null : orgMember;
+        }
+
+        MemberVO member = new MemberVO().builder()
+                .memberId(userInfoDto.getId().longValue())
+                .nickname((String) userInfoDto.properties.get("nickname"))
+                .type(KAKAO)
+                .email((String) userInfoDto.kakao_account.get("email"))
+                .accessToken(oauthTokenDto.getAccess_token())
+                .refreshToken(oauthTokenDto.getRefresh_token())
+                .fileMaxSize(fileConfig.fileMaxSize)
+                .loginDt(new Date())
+                .build();
+
+        return repository.insert(member) == 0 ? null : Optional.of(member);
     }
 
     @Override
-    public Optional<OauthToken> getToken(String code) {
+    public Optional<OauthTokenDto> getToken(String code) {
 
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>();
 
@@ -71,7 +87,7 @@ public class LoginService implements ILoginService {
             log.error(e.getMessage());
             return null;
         }
-        return Optional.of(new Gson().fromJson(response.getBody(), OauthToken.class));
+        return Optional.of(new Gson().fromJson(response.getBody(), OauthTokenDto.class));
     }
 
     @Override

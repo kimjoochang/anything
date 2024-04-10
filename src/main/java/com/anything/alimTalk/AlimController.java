@@ -1,9 +1,6 @@
 package com.anything.alimTalk;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +17,8 @@ public class AlimController {
     }
 
     @PostMapping("alimTalk/insert")
-    public ResponseEntity insertAction(AlimDto alimDto) {
-        int result = alimService.insertAction(alimDto);
+    public ResponseEntity insertAction(AlimVO alimVO) {
+        int result = alimService.insertAction(alimVO);
         return null;
     }
 }
