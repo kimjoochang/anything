@@ -1,4 +1,4 @@
-package com.anything.alimTalk;
+package com.anything.alimTalk.alim;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface AlimRepository {
     List<AlimVO> list(AlimVO alimVO);
-    int insertAction(AlimVO alimVO);
+    List<String> listSendTime(AlimVO alimVO);
+    int insert(AlimVO alimVO);
     int updateAction(AlimVO alimVO);
 }

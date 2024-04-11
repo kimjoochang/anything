@@ -1,4 +1,4 @@
-package com.anything.alimTalk;
+package com.anything.alimTalk.alim;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,20 +20,25 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class AlimService implements IAlimService{
-    private final AlimRepository alimRepository;
+    private final AlimRepository repository;
     @Override
     public List<AlimVO> list(AlimVO alimVO) {
-        return alimRepository.list(alimVO);
+        return repository.list(alimVO);
+    }
+    @Override
+    public List<String> listSendTime(AlimVO alimVO) {
+        return repository.listSendTime(alimVO);
     }
 
     @Override
-    public int insertAction(AlimVO alimVO) {
-        return alimRepository.insertAction(alimVO);
+    public int insertAction(long memberId, AlimVO alimVO) {
+        alimVO.setMemberId(memberId);
+        return repository.insert(alimVO);
     }
 
     @Override
     public int updateAction(AlimVO alimVO) {
-        return alimRepository.updateAction(alimVO);
+        return repository.updateAction(alimVO);
     }
 
     @Override

@@ -104,57 +104,58 @@
 </head>
 <body>
 
-<form id="alimForm" method="post" action="insert">
-    <div id="modal" class="hide">
-        <div id="modal_body" class="modal_body">
-            <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
-                <ul class="list-group">
-                    <li>09:30</li>
-                    <li>12:30</li>
-                    <li>15:30</li>
-                    <li>
-                        <button class="modal_btn" style="width:22px; margin-left:22px;">+</button>
-                    </li>
-                </ul>
-            </div>
-            <div id="inputTableDiv" style="float: right; width:78%;">
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>일시</th>
-                            <td>
-                                <input id="sendDt" name="sendDt" type="hidden">
-                                <input id="sendDd" type="text" name="sendDd" readonly="true">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>알림 시간</th>
-                            <td>
-                                <input id="sendTime" type="text">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>제목</th>
-                            <td>
-                                <input id="title" type="text" name="title" value="제목">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>내용</th>
-                            <td>
-                                <textarea id="content" rows="6" style="height:200px;" name="content">내용</textarea>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div style="clear: both;"></div>
-            <div id="btnDiv" style="margin-top:20px;">
-                <button class="modal_btn" onclick="action();">저장</button>
-                <button id="clsBtn" class="modal_btn">취소</button>
+    <form id="alimForm" method="post" action="insert">
+        <div id="modal" class="hide">
+            <div id="modal_body" class="modal_body">
+                <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
+                    <ul id="sendTimeUl" class="list-group">
+                        <li th:each="time : ${sendTimes} ">
+                            [[${time}]]
+                        </li>
+                        <li>
+                            <button class="modal_btn" style="width:22px; margin-left:22px;">+</button>
+                        </li>
+                    </ul>
+                </div>
+                <div id="inputTableDiv" style="float: right; width:78%;">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>일시</th>
+                                <td>
+                                    <input id="sendDay" type="text" name="sendDay" readonly="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>알림 시간</th>
+                                <td>
+                                    <input id="sendTime" name="sendTime" type="text">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>제목</th>
+                                <td>
+                                    <input id="title" type="text" name="title" value="제목">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>내용</th>
+                                <td>
+                                    <textarea id="content" rows="6" style="height:200px;" name="content">내용</textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="clear: both;"></div>
+                <div id="btnDiv" style="margin-top:20px;">
+                    <button class="modal_btn" onclick="action();">저장</button>
+                    <button type="button" id="clsBtn" class="modal_btn">취소</button>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
+
     <div id="modal_background" class="hide" style="width:100%; height:100%; position: absolute;"></div>
     <div id="contentDiv" style="overflow: auto">
         <div id="header">
@@ -163,7 +164,7 @@
         </div>
 
         <div id="rightDiv" style="float: right">
-            <span style="font-weight:bold;font-size:24px" class="" th:text="${session.member.nickname}"></span>
+            <span style="font-weight:bold;font-size:24px" class="" th:text="${session.member.nickname + ' 님'}"></span>
             <button type="button" style="margin-left:10px; font-weight:bold;font-size:18px" onclick="logout();">로그아웃</button>
         </div>
 
@@ -174,13 +175,16 @@
             <div id="calendar" style="width:90%; margin: 0 auto;"></div>
         </div>
     </div>
-</form>
 </body>
 </html>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script th:inline="javascript">
+    //var serverUrl = "[[${@environment.getProperty('server.url')}]]";
+    var memberId = "[[${session.member.memberId}]]";
+</script>
 <script>
     $(document).ready(function() {
         const calendarEl = $('#calendar')[0];
@@ -207,7 +211,7 @@
         });
 
         // 모달 열기
-        $('#calendar').on('click','.fc-day', function(){
+        $('#calendar').on('click','.fc-day', function() {
             if ($('#modal').hasClass('hide')) {
                 $('#modal').removeClass('hide');
                 $('#modal_background').removeClass('hide');
@@ -218,9 +222,18 @@
                 $('#contentDiv').css('opacity', '0.05');
                 $('#contentDiv').css('overflow', 'hidden');
                 $('#contentDiv').css('pointer-events','none');
+                const selectedDay = this.dataset.date;
+                $('#sendDay').val(selectedDay);
 
-                $('#sendDd').val(this.dataset.date);
+                $.ajax({
+                    type : 'get',
+                    url : "list?memberId="+memberId+"&sendDay="+selectedDay,
+                    success : function (data) {
+                        $('#sendTimeUl').replaceWith(data)
+                    }
+                })
                 $('html').animate({scrollTop: 0}, 'fast');
+
             }
         });
         // 모달 주위 클릭 시 모달 닫기
@@ -240,11 +253,11 @@
     const closeModal = function() {
         $('#modal').addClass('hide');
         $('#modal_background').addClass('hide');
-
         $('#modal').removeClass('show');
-        $('#modal_background').removeClass('show');
 
+        $('#modal_background').removeClass('show');
         $('#contentDiv').css('overflow', 'auto');
+
         $('#contentDiv').css('opacity', '1');
         $('#contentDiv').css('pointer-events','auto');
     }

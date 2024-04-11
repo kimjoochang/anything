@@ -1,3 +1,19 @@
+CREATE TABLE ALIM (
+                      ALIM_SEQ BIGINT NOT NULL AUTO_INCREMENT,
+                      MEMBER_ID BIGINT NOT NULL,
+                      TITLE VARCHAR(255) NOT NULL,
+                      CONTENT VARCHAR(2000) NULL,
+                      SEND_DAY VARCHAR(10) NOT NULL,
+                      SEND_TIME VARCHAR(10) NOT NULL,
+                      SEND_CD CHAR(1) NOT NULL DEFAULT 'N',
+                      REG_ID BIGINT NOT NULL,
+                      REG_DT DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      MODI_ID BIGINT NULL,
+                      MODI_DT DATETIME NULL,
+                      PRIMARY KEY (ALIM_SEQ, MEMBER_ID),
+                      FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
+);
+
 CREATE TABLE MEMBER (
                         MEMBER_ID BIGINT NOT NULL,
                         NICKNAME VARCHAR(100) NOT NULL,
@@ -10,21 +26,6 @@ CREATE TABLE MEMBER (
                         REG_DT DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         LOGIN_DT DATETIME NULL,
                         PRIMARY KEY (MEMBER_ID)
-);
-
-CREATE TABLE ALIM (
-                      ALIM_SEQ BIGINT NOT NULL AUTO_INCREMENT,
-                      MEMBER_ID BIGINT NOT NULL,
-                      TITLE VARCHAR(255) NOT NULL,
-                      SEND_DT VARCHAR(20) NOT NULL,
-                      CONTENT VARCHAR(2000) NULL,
-                      SEND_CD CHAR(1) NOT NULL DEFAULT 'N',
-                      REG_ID BIGINT NOT NULL,
-                      REG_DT DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                      MODI_ID BIGINT NULL,
-                      MODI_DT DATETIME NULL,
-                      PRIMARY KEY (ALIM_SEQ, MEMBER_ID),
-                      FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
 );
 
 CREATE TABLE SEND (

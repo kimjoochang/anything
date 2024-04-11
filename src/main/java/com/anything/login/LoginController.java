@@ -36,7 +36,7 @@ public class LoginController {
 
         request.getSession(true).setAttribute("member", member.get());
 
-        return "/alimTalk/index";
+        return "redirect:/alimTalk/index";
     }
 
     @GetMapping("login/logout")

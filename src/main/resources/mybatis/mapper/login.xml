@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.anything.login.LoginRepository">
-
+    <!--
     <resultMap id="MemberResultMap" type="MemberVO">
         <id column="MEMBER_ID" property="memberId"/>
         <result column="NICKNAME" property="nickname"/>
@@ -18,24 +18,24 @@
         <result column="REG_DT" property="regDt"/>
         <result column="LOGIN_DT" property="loginDt"/>
     </resultMap>
-
-    <select id="view" resultMap="MemberResultMap" parameterType="Long">
-        SELECT MEMBER_ID,
-               NICKNAME,
-               TYPE,
-               ROLE,
-               EMAIL,
-               FILE_MAX_SIZE,
-               ACCESS_TOKEN,
-               REFRESH_TOKEN,
-               REG_DT,
-               LOGIN_DT
+    -->
+    <select id="view" resultType="MemberVO" parameterType="Long">
+        SELECT MEMBER_ID        as memberId,
+               NICKNAME         as nickName,
+               TYPE             as type,
+               ROLE             as role,
+               EMAIL            as email,
+               FILE_MAX_SIZE    as fileMaxSize,
+               ACCESS_TOKEN     as accessToken,
+               REFRESH_TOKEN    as refreshToken,
+               REG_DT           as regDt,
+               LOGIN_DT         as loginDt
         FROM MEMBER
         WHERE MEMBER_ID = #{memberId}
     </select>
 
 
-    <insert id="insert" parameterType="com.anything.login.MemberVO">
+    <insert id="insert" parameterType="MemberVO">
         INSERT INTO
             MEMBER
             (MEMBER_ID,         NICKNAME,           TYPE,
@@ -47,7 +47,7 @@
              #{accessToken},    #{refreshToken},    #{loginDt})
     </insert>
 
-    <update id="updateToken" parameterType="com.anything.login.MemberVO">
+    <update id="updateToken" parameterType="MemberVO">
         UPDATE MEMBER
            SET ACCESS_TOKEN  = #{accessToken},
                REFRESH_TOKEN = #{refreshToken},

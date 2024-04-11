@@ -1,6 +1,6 @@
 package com.anything.common.service;
 
-import com.anything.alimTalk.AlimRepository;
+import com.anything.alimTalk.alim.AlimRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
