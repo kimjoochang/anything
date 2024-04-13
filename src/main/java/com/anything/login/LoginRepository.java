@@ -11,5 +11,5 @@ import java.util.OptionalInt;
 public interface LoginRepository {
     Optional<MemberVO> view(long memberId);
     int insert(MemberVO member);
-    int updateToken(MemberVO member);
+    int updateTokenByLogin(MemberVO member);
 }

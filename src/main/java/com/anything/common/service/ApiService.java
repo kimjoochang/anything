@@ -28,7 +28,7 @@ public class ApiService {
 
         // 토큰발급은 access 토큰 없음
         if (StringUtils.isNotEmpty(token)) {
-            header.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            header.set(HttpHeaders.AUTHORIZATION, AUTHORIZATION_VALUE);
             header.add(HttpHeaders.ACCEPT, "application/json");
         }
         header.set(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");

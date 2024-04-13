@@ -47,7 +47,7 @@
              #{accessToken},    #{refreshToken},    #{loginDt})
     </insert>
 
-    <update id="updateToken" parameterType="MemberVO">
+    <update id="updateTokenByLogin" parameterType="MemberVO">
         UPDATE MEMBER
            SET ACCESS_TOKEN  = #{accessToken},
                REFRESH_TOKEN = #{refreshToken},

@@ -53,7 +53,7 @@ public class LoginService implements ILoginService {
         Optional<MemberVO> orgMember = repository.view(memberId);
 
         if (orgMember.isPresent()) {
-            return repository.updateToken(orgMember.get().updateToken(accessToken,refreshToken).get()) == 0 ? null : orgMember;
+            return repository.updateTokenByLogin(orgMember.get().updateToken(accessToken,refreshToken).get()) == 0 ? null : orgMember;
         }
 
         MemberVO member = new MemberVO().builder()
