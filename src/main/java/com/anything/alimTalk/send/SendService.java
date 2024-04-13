@@ -18,6 +18,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,31 +65,38 @@ public class SendService implements ISendService {
             boolean isExpireAccessToken = currentTimeMilis > loginTimeMilis + sixHourMilis ? true : false;
             boolean isExpireRefreshToken = currentTimeMilis > loginTimeMilis + twoMonthMilis ? true : false;
 
-            if (trgt.getAlimSeq() == 1) {
-                isExpireAccessToken = true;
-            }
-
-            if (trgt.getAlimSeq() == 2) {
-                isExpireAccessToken = true;
-                isExpireRefreshToken = true;
-            }
-
             // access_token은 만료됐지만, refresh_token은 만료되지않았다면 갱신
             if (isExpireAccessToken && isExpireRefreshToken == false) {
                 OauthTokenDto newToken = null;
+
                 try {
                     newToken = getRefreshToken(trgt.getRefreshToken());
+
                 } catch (Exception e) {
                     log.error(trgt.getAlimSeq() + "GET TOKEN ERROR : " +e.getMessage());
                     trgt.setSendCd("E");
                     trgt.setSendStusMsg("GET_TOKEN_ERROR");
                     continue;
                 }
-                trgt.setAccessToken(newToken.getAccess_token());
-                trgt.setRefreshToken(newToken.getRefresh_token());
+                String newAcsToken = newToken.getAccess_token();
+                String newRfshToken = newToken.getAccess_token();
+
+                Map<Long, List<SendVO>> groupedByMemberId = sendList.stream()
+                        .collect(Collectors.groupingBy(SendVO::getMemberId));
+
+                groupedByMemberId.forEach((memberId, memberList) -> {
+                    // 중복된 memberId에 해당하는 객체 처리
+                    memberList.forEach(updateTrgt -> {
+                        updateTrgt.setAccessToken(newAcsToken);
+                        updateTrgt.setRefreshToken(newRfshToken);
+                        updateTrgt.setLoginDt(now);
+                    });
+                });
+
                 //MEMBER 테이블에 토큰 정보 업데이트
-                log.info("TOKEN UPDATE!!!!");
                 repository.updateTokenByRefresh(trgt);
+                log.info("TOKEN UPDATE!!!!");
+
             }
             // 둘 다 만료라면 DB에 SEND_CD 'E'(만료)로 업데이트
             else if (isExpireAccessToken && isExpireRefreshToken) {

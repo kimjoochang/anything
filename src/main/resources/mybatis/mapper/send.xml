@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anything.alimTalk.send.SendRepository">
+    <select id="list" resultType="SendVO" parameterType="java.util.Map">
+        SELECT A.ALIM_SEQ      as alimSeq,
+               A.MEMBER_ID     as memberId,
+               A.TITLE         as title,
+               A.CONTENT       as content,
+               A.SEND_DAY      as sendDay,
+               A.SEND_TIME     as sendTime,
+               B.ACCESS_TOKEN  as accessToken,
+               B.REFRESH_TOKEN as refreshToken,
+               B.LOGIN_DT      as loginDt
+        FROM ALIM A
+        LEFT JOIN MEMBER B
+               ON A.MEMBER_ID = B.MEMBER_ID
+       WHERE A.SEND_DAY = #{sendDay}
+         -- AND A.SEND_TIME &lt; #{sendTime}
+         AND A.SEND_CD = 'N'
+    </select>
+
+    <insert id="insert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="sendSeq">
+        INSERT INTO SEND
+            (ALIM_SEQ,
+             MEMBER_ID,
+             SEND_STUS_MSG,
+             REG_ID,
+             REG_DT)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+             #{item.alimSeq},
+             #{item.memberId},
+             #{item.sendStusMsg},
+            #{item.regId},
+             now()
+             )
+        </foreach>
+    </insert>
+
+    <update id="updateTokenByRefresh" parameterType="SendVO">
+        UPDATE MEMBER
+        SET ACCESS_TOKEN  = #{accessToken},
+            REFRESH_TOKEN = #{refreshToken}
+            WHERE MEMBER_ID = #{memberId}
+    </update>
+
+    <update id="updateSendCd" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE ALIM
+               SET SEND_CD  = #{item.sendCd}
+             WHERE ALIM_SEQ = #{item.alimSeq}
+        </foreach>
+    </update>
+
+</mapper>
