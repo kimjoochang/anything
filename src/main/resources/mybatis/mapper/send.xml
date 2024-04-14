@@ -16,7 +16,7 @@
         FROM ALIM A
         LEFT JOIN MEMBER B
                ON A.MEMBER_ID = B.MEMBER_ID
-       WHERE A.SEND_DT &lt; #{sendDt}
+       WHERE A.SEND_DT &lt;= #{sendDt}
          AND A.SEND_CD = 'N'
     </select>
 

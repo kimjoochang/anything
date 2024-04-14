@@ -134,8 +134,8 @@
                                 <th>알림 시간</th>
                                 <td>
                                     <select id="amPmSelectBox" style="width:61px;">
-                                        <option value="AM" th:default="AM" th:selected="${AMPM}">오전</option>
-                                        <option value="PM" th:selected="${AMPM}">오후</option>
+                                        <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
+                                        <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
                                     </select>
                                     <select id="hourSelectBox" style="width:96px;">
                                         <option value="">-- 선택 --</option>
@@ -228,8 +228,11 @@
             let selectedHour = $('#hourSelectBox option:selected').val();
 
             if ($('#amPmSelectBox option:selected').val() == 'PM') {
-                selectedHour = Number($('#hourSelectBox option:selected').val()) + 12;
-
+                if (selectedHour != 12) {
+                    selectedHour = Number($('#hourSelectBox option:selected').val()) + 12;
+                }
+            } else {
+                debugger;
                 if (selectedHour == 12) {
                     selectedHour = "00";
                 }

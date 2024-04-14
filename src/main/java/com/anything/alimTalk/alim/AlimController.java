@@ -79,13 +79,16 @@ public class AlimController {
 
         AlimVO alim = service.view(alimVO);
 
-        String selectedHour = alim.getSendTime().substring(0,2);
+        String selectedHour = alim.getSendTime().startsWith("00")  ? "12" : alim.getSendTime().substring(0,2);
         int selectedHourNum = Integer.parseInt(alim.getSendTime().substring(0,2));
         String AMPM = "AM";
-        if (selectedHourNum > 12) {
+        if (selectedHourNum >= 12) {
             AMPM = "PM";
             int hour = selectedHourNum - 12;
-            if (hour-10 < 0) {
+            if (selectedHourNum == 12) {
+                selectedHour = "12";
+            }
+            else if (hour-10 < 0) {
                 selectedHour = "0" + Integer.toString(hour);
             } else {
                 selectedHour = Integer.toString(hour);
