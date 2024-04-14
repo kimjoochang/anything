@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -20,20 +21,85 @@ public class AlimController {
     private final AlimService service;
     private final SendService sendService;
     @GetMapping("alimTalk/index")
-    public String index(HttpServletRequest request) {
+    public String index(Model model, HttpServletRequest request) {
 
-        String url = request.getSession(false) == null ? "redirect:/login/index" : "alimTalk/index";
+        List<String> hours = new ArrayList<>();
+        List<String> minutes = new ArrayList<>();
+        for(int i=1; i < 13; i++) {
+            if (i-10 < 0) {
+                hours.add("0" + Integer.toString(i));
+            } else {
+                hours.add(Integer.toString(i));
+            }
+        }
+        for(int i=0; i < 60; i=i+5) {
+            if (i-10 < 0) {
+                minutes.add("0" + Integer.toString(i));
+            } else {
+                minutes.add(Integer.toString(i));
+            }
+        }
 
-        return url;
+        model.addAttribute("hours", hours);
+        model.addAttribute("minutes", minutes);
+
+        return "alimTalk/index";
     }
 
     @GetMapping("alimTalk/list")
     public String list(Model model, AlimVO alimVO) {
-        List<String> sendTimes = service.listSendTime(alimVO);
-        log.info("list 값 확인 -====>" + sendTimes.toString());
-        model.addAttribute("sendTimes", sendTimes);
+        List<AlimVO> sendList = service.listSendTime(alimVO);
+        model.addAttribute("sendList", sendList);
 
         return "alimTalk/index :: #sendTimeUl";
+    }
+
+    @GetMapping("alimTalk/view")
+    public String view(Model model, AlimVO alimVO) {
+
+        List<String> hours = new ArrayList<>();
+        List<String> minutes = new ArrayList<>();
+        for(int i=1; i < 13; i++) {
+            if (i-10 < 0) {
+                hours.add("0" + Integer.toString(i));
+            } else {
+                hours.add(Integer.toString(i));
+            }
+        }
+        for(int i=0; i < 60; i=i+5) {
+            if (i-10 < 0) {
+                minutes.add("0" + Integer.toString(i));
+            } else {
+                minutes.add(Integer.toString(i));
+            }
+        }
+
+        model.addAttribute("hours", hours);
+        model.addAttribute("minutes", minutes);
+
+        AlimVO alim = service.view(alimVO);
+
+        String selectedHour = alim.getSendTime().substring(0,2);
+        int selectedHourNum = Integer.parseInt(alim.getSendTime().substring(0,2));
+        String AMPM = "AM";
+        if (selectedHourNum > 12) {
+            AMPM = "PM";
+            int hour = selectedHourNum - 12;
+            if (hour-10 < 0) {
+                selectedHour = "0" + Integer.toString(hour);
+            } else {
+                selectedHour = Integer.toString(hour);
+            }
+        }
+
+        model.addAttribute("alimSeq", alim.getAlimSeq());
+        model.addAttribute("sendDay", alim.getSendDay());
+        model.addAttribute("AMPM", AMPM);
+        model.addAttribute("selectedHour", selectedHour);
+        model.addAttribute("selectedMinute", alim.getSendTime().substring(3));
+        model.addAttribute("title", alim.getTitle());
+        model.addAttribute("content", alim.getContent());
+        return "alimTalk/index :: #inputTableDiv";
     }
 
     @PostMapping("alimTalk/insert")
@@ -42,10 +108,11 @@ public class AlimController {
         int result = service.insertAction(member.getMemberId(), alimVO);
         return "alimTalk/index";
     }
-
-    @GetMapping("alimTalk/send")
-    public String sendAction(HttpServletRequest request, AlimVO alimVO) {
-        sendService.sendAction();
+    @PostMapping("alimTalk/update")
+    public String updateAction(HttpServletRequest request, AlimVO alimVO) {
+        MemberVO member = (MemberVO)request.getSession().getAttribute("member");
+        int result = service.updateAction(member.getMemberId(), alimVO);
         return "alimTalk/index";
     }
+
 }

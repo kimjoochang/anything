@@ -42,12 +42,7 @@ public class SendService implements ISendService {
         long SCHEDULER_ID = 9999;
         log.info("SCHEDULER START!!!!");
         Date now = new Date();
-
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("sendDay", new SimpleDateFormat("yyyy-MM-dd").format(now));
-        paramMap.put("sendTime", new SimpleDateFormat("HH:mm").format(now));
-
-        List<SendVO> sendList = repository.list(paramMap);
+        List<SendVO> sendList = repository.list(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now));
 
         if (sendList.size() == 0) {
             return;
@@ -71,9 +66,8 @@ public class SendService implements ISendService {
 
                 try {
                     newToken = getRefreshToken(trgt.getRefreshToken());
-
                 } catch (Exception e) {
-                    log.error(trgt.getAlimSeq() + "GET TOKEN ERROR : " +e.getMessage());
+                    log.error("ALIM SEQ : " + trgt.getAlimSeq() + "GET TOKEN ERROR : " +e.getMessage());
                     trgt.setSendCd("E");
                     trgt.setSendStusMsg("GET_TOKEN_ERROR");
                     continue;
@@ -85,7 +79,7 @@ public class SendService implements ISendService {
                         .collect(Collectors.groupingBy(SendVO::getMemberId));
 
                 groupedByMemberId.forEach((memberId, memberList) -> {
-                    // 중복된 memberId에 해당하는 객체 처리
+                    // 중복된 memberId 값 최신화
                     memberList.forEach(updateTrgt -> {
                         updateTrgt.setAccessToken(newAcsToken);
                         updateTrgt.setRefreshToken(newRfshToken);
@@ -98,21 +92,23 @@ public class SendService implements ISendService {
                 log.info("TOKEN UPDATE!!!!");
 
             }
+
             // 둘 다 만료라면 DB에 SEND_CD 'E'(만료)로 업데이트
             else if (isExpireAccessToken && isExpireRefreshToken) {
                 trgt.setSendCd("E");
-                trgt.setSendStusMsg("EXPIRED_TOKEN");
+                trgt.setSendStusMsg("ALIM SEQ : " + trgt.getAlimSeq() + "EXPIRED_TOKEN");
                 continue;
             }
 
             try {
                 sendMsg(trgt);
             } catch (Exception e) {
-                log.error(trgt.getAlimSeq() + "SEND ERROR : " +e.getMessage());
+                log.error("ALIM SEQ : " + trgt.getAlimSeq() +  "SEND ERROR : " +e.getMessage());
                 trgt.setSendCd("E");
                 trgt.setSendStusMsg("SEND_ERROR");
                 continue;
             }
+
             trgt.setSendCd("Y");
             trgt.setSendStusMsg("SUCCESS");
         }

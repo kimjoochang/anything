@@ -9,16 +9,14 @@
                A.MEMBER_ID     as memberId,
                A.TITLE         as title,
                A.CONTENT       as content,
-               A.SEND_DAY      as sendDay,
-               A.SEND_TIME     as sendTime,
+               A.SEND_DT       as sendDt,
                B.ACCESS_TOKEN  as accessToken,
                B.REFRESH_TOKEN as refreshToken,
                B.LOGIN_DT      as loginDt
         FROM ALIM A
         LEFT JOIN MEMBER B
                ON A.MEMBER_ID = B.MEMBER_ID
-       WHERE A.SEND_DAY = #{sendDay}
-         -- AND A.SEND_TIME &lt; #{sendTime}
+       WHERE A.SEND_DT &lt; #{sendDt}
          AND A.SEND_CD = 'N'
     </select>
 

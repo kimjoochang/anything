@@ -4,28 +4,13 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.anything.alimTalk.alim.AlimRepository">
-    <!--
-    <resultMap id="AlimResultMap" type="AlimVO">
-        <id column="ALIM_SEQ" property="alimSeq"/>
-        <result column="MEMBER_ID" property="memberId"/>
-        <result column="TITLE" property="title"/>
-        <result column="CONTENT" property="content"/>
-        <result column="SEND_DAY" property="sendDay"/>
-        <result column="SEND_TIME" property="sendTime"/>
-        <result column="SEND_CD" property="sendCd"/>
-        <result column="REG_ID" property="regId"/>
-        <result column="REG_DT" property="regDt"/>
-        <result column="MODI_ID" property="modiId"/>
-        <result column="MODI_DT" property="modiDt"/>
-    </resultMap>
-    -->
-    <select id="list" resultType="AlimVO" parameterType="AlimVO">
+
+    <select id="list" resultType="AlimVO" parameterType="java.util.Map">
         SELECT ALIM_SEQ     as alimSeq,
                MEMBER_ID    as memberId,
                TITLE        as title,
                CONTENT      as content,
-               SEND_DAY     as sendDay,
-               SEND_TIME    as sendTime,
+               SEND_DT      as sendDt,
                SEND_CD      as sendCd,
                REG_ID       as regId,
                REG_DT       as regDt,
@@ -33,24 +18,46 @@
                MODI_DT      as modiDt
         FROM ALIM
         WHERE MEMBER_ID = #{memberId}
-          AND SEND_DAY = #{sendDay}
+          AND SEND_DT between #{startDt} and #{endDt}
     </select>
 
-    <select id="listSendTime" resultType="String" parameterType="AlimVO">
-        SELECT SEND_TIME
+    <select id="view" resultType="AlimVO" parameterType="AlimVO">
+        SELECT ALIM_SEQ                     as alimSeq,
+               DATE_FORMAT(SEND_DT,'%Y-%m-%d') as sendDay,
+               TIME_FORMAT(SEND_DT,'%H:%i') as sendTime,
+                TITLE                       as title,
+               CONTENT                      as content
         FROM ALIM
-        WHERE MEMBER_ID = #{memberId}
-          AND SEND_DAY = #{sendDay}
+        WHERE ALIM_SEQ = #{alimSeq}
+    </select>
+
+    <select id="listSendTime" resultType="AlimVO" parameterType="AlimVO">
+        SELECT ALIM_SEQ                     as alimSeq,
+               TIME_FORMAT(SEND_DT,'%H:%i') as sendTime
+          FROM ALIM
+          WHERE MEMBER_ID = #{memberId}
+            AND date_format(SEND_DT,'%Y-%m-%d') = #{sendDay}
+        ORDER BY SEND_DT
     </select>
 
 
     <insert id="insert" parameterType="AlimVO" useGeneratedKeys="true" keyProperty="alimSeq">
         INSERT INTO ALIM
-            (MEMBER_ID,     TITLE,          CONTENT,        SEND_DAY,
-             SEND_TIME,     REG_ID,         REG_DT)
+            (MEMBER_ID,     TITLE,          CONTENT,
+             SEND_DT,       REG_ID,         REG_DT)
         VALUES
-            (#{memberId},   #{title},       #{content},     #{sendDay},
-             #{sendTime},   #{memberId},    now())
+            (#{memberId},   #{title},       #{content},
+             #{sendDt},     #{memberId},    now())
     </insert>
+
+    <update id="update" parameterType="AlimVO">
+        UPDATE ALIM
+        SET TITLE  = #{title},
+            CONTENT = #{content},
+            SEND_DT = #{sendDt},
+            MODI_ID = #{memberId},
+            MODI_DT = now()
+        WHERE ALIM_SEQ = #{alimSeq}
+    </update>
 
 </mapper>
