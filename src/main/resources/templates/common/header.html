@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div id="header" th:fragment="header">
+        <div id="leftDiv" style="float: left">
+            <div style="font-weight:bold;font-size:24px" class="" spellcheck="false">잡동사니</div>
+        </div>
+
+        <div id="rightDiv" style="float: right">
+            <span style="font-weight:bold;font-size:24px" class="" th:text="${session.member.nickname + ' 님'}"></span>
+            <button type="button" style="margin-left:10px; font-weight:bold;font-size:18px" onclick="logout();">로그아웃</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    const logout = function () {
+        location.href = '/login/logout';
+    }
+</script>

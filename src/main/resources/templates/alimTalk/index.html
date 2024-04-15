@@ -1,111 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
+<link rel="stylesheet" type="text/css" th:href="@{/css/alimtalk.css}">
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
-    <style>
-        /* 테이블 행 */
-        #inputTableDiv > td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
-
-        #inputTableDiv th {
-            padding-right: 20px;
-            text-align: left;
-            text-align: center;
-            color: #000;
-        }
-
-        /* 테이블 올렸을 때 */
-        #inputTableDiv > tbody tr:hover {
-            background-color: #d3d3d3;
-            opacity: 0.9;
-            cursor: pointer;
-        }
-
-        #inputTableDiv > th,
-        #inputTableDiv > td {
-            border-left: none;
-            border-right: none;
-        }
-        /* lists reset */
-        ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: grid;
-            grid-gap: 0.5rem;
-        }
-
-        li {
-            display: grid;
-            grid-template-columns: 0 1fr;
-            align-items: start;
-            line-height: 1.25;
-        }
-
-        ul li::before {
-            content: attr(data-icon);
-        }
-        .hide {
-            position: absolute;
-            display: none;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        show {
-            display: block;
-            opacity: 0.05;
-        }
-
-        .modal_body {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 450px;
-            height: 385px;
-            padding-left: 20px;
-            padding-right: 40px;
-            padding-top: 20px;
-            text-align: center;
-            background-color: lightgray;
-            border-radius: 10px;
-            box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
-            z-index: 999;
-            transform: translateX(-50%) translateY(-50%);
-        }
-        input, textarea, select {
-            width: 250px;
-            height: 32px;
-            font-size: 15px;
-            border: 0;
-            border-radius: 10px;
-            outline: none;
-            padding-left: 10px;
-            background-color: rgb(233, 233, 233);
-        }
-        textarea {
-            height: 6.25em;
-            border: none;
-            resize: none;
-        }
-
-        .modal_btn {
-            border: 3px;
-            border-radius: 5px;
-            outline: none;
-            background-color: rgb(233, 233, 233);
-        }
-        .fc-day-sat { color:#0000FF; }
-        .fc-day-sun { color:#FF0000; }
-    </style>
+    <title>알림톡</title>
 </head>
 <body>
-
+    <div id="header">
+        <div th:replace="~{common/header :: header}"></div>
+    </div>
     <form id="alimForm" method="post" action="insert">
         <div id="modal" class="hide">
             <div id="modal_body" class="modal_body">
@@ -124,46 +28,46 @@
                 <div id="inputTableDiv" style="float: right; width:78%;">
                     <table>
                         <tbody>
-                            <tr>
-                                <th>일시</th>
-                                <td>
-                                    <input id="sendDay" type="text" name="sendDay" readonly="true" th:value="${sendDay}">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>알림 시간</th>
-                                <td>
-                                    <select id="amPmSelectBox" style="width:61px;">
-                                        <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
-                                        <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
-                                    </select>
-                                    <select id="hourSelectBox" style="width:96px;">
-                                        <option value="">-- 선택 --</option>
-                                        <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
-                                                th:utext="${hour + '시'}">
-                                        </option>
-                                    </select>
-                                    <select id="minuteSelectBox" style="width:96px;">
-                                        <option value="">-- 선택 --</option>
-                                        <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
-                                                th:utext="${minute+ '분'}">
-                                        </option>
-                                    </select>
-                                    <input id="sendTime" name="sendTime" type="hidden">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>제목</th>
-                                <td>
-                                    <input id="title" type="text" name="title" th:value="${title}">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>내용</th>
-                                <td>
-                                    <textarea id="content" rows="6" style="height:200px;" name="content" th:text="${content}">내용</textarea>
-                                </td>
-                            </tr>
+                        <tr>
+                            <th>일시</th>
+                            <td>
+                                <input id="sendDay" type="text" name="sendDay" readonly="true" th:value="${sendDay}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>알림 시간</th>
+                            <td>
+                                <select id="amPmSelectBox" style="width:61px;">
+                                    <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
+                                    <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
+                                </select>
+                                <select id="hourSelectBox" style="width:96px;">
+                                    <option value="">-- 선택 --</option>
+                                    <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
+                                            th:utext="${hour + '시'}">
+                                    </option>
+                                </select>
+                                <select id="minuteSelectBox" style="width:96px;">
+                                    <option value="">-- 선택 --</option>
+                                    <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
+                                            th:utext="${minute+ '분'}">
+                                    </option>
+                                </select>
+                                <input id="sendTime" name="sendTime" type="hidden">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td>
+                                <input id="title" type="text" name="title" th:value="${title}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td>
+                                <textarea id="content" rows="6" style="height:200px;" name="content" th:text="${content}">내용</textarea>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -175,20 +79,8 @@
             </div>
         </div>
     </form>
-
     <div id="modal_background" class="hide" style="width:100%; height:100%; position: absolute;"></div>
     <div id="contentDiv" style="overflow: auto">
-        <div id="header">
-        <div id="leftDiv" style="float: left">
-            <div style="font-weight:bold;font-size:24px" class="" spellcheck="false">잡동사니</div>
-        </div>
-
-        <div id="rightDiv" style="float: right">
-            <span style="font-weight:bold;font-size:24px" class="" th:text="${session.member.nickname + ' 님'}"></span>
-            <button type="button" style="margin-left:10px; font-weight:bold;font-size:18px" onclick="logout();">로그아웃</button>
-        </div>
-
-        </div>
         <div style="clear: both;"></div>
         <hr style=" margin-top: 10px; margin-bottom: 30px;"/>
         <div>

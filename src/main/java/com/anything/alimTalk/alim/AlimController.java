@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,25 +25,8 @@ public class AlimController {
     @GetMapping("alimTalk/index")
     public String index(Model model, HttpServletRequest request) {
 
-        List<String> hours = new ArrayList<>();
-        List<String> minutes = new ArrayList<>();
-        for(int i=1; i < 13; i++) {
-            if (i-10 < 0) {
-                hours.add("0" + Integer.toString(i));
-            } else {
-                hours.add(Integer.toString(i));
-            }
-        }
-        for(int i=0; i < 60; i=i+5) {
-            if (i-10 < 0) {
-                minutes.add("0" + Integer.toString(i));
-            } else {
-                minutes.add(Integer.toString(i));
-            }
-        }
-
-        model.addAttribute("hours", hours);
-        model.addAttribute("minutes", minutes);
+        model.addAttribute("hours", service.getHourList());
+        model.addAttribute("minutes", service.getTimeList());
 
         return "alimTalk/index";
     }
@@ -56,26 +41,6 @@ public class AlimController {
 
     @GetMapping("alimTalk/view")
     public String view(Model model, AlimVO alimVO) {
-
-        List<String> hours = new ArrayList<>();
-        List<String> minutes = new ArrayList<>();
-        for(int i=1; i < 13; i++) {
-            if (i-10 < 0) {
-                hours.add("0" + Integer.toString(i));
-            } else {
-                hours.add(Integer.toString(i));
-            }
-        }
-        for(int i=0; i < 60; i=i+5) {
-            if (i-10 < 0) {
-                minutes.add("0" + Integer.toString(i));
-            } else {
-                minutes.add(Integer.toString(i));
-            }
-        }
-
-        model.addAttribute("hours", hours);
-        model.addAttribute("minutes", minutes);
 
         AlimVO alim = service.view(alimVO);
 
@@ -94,14 +59,16 @@ public class AlimController {
                 selectedHour = Integer.toString(hour);
             }
         }
+        model.addAttribute("hours", service.getHourList());
+        model.addAttribute("minutes", service.getTimeList());
 
         model.addAttribute("alimSeq", alim.getAlimSeq());
         model.addAttribute("sendDay", alim.getSendDay());
+        model.addAttribute("title", alim.getTitle());
+        model.addAttribute("content", alim.getContent());
         model.addAttribute("AMPM", AMPM);
         model.addAttribute("selectedHour", selectedHour);
         model.addAttribute("selectedMinute", alim.getSendTime().substring(3));
-        model.addAttribute("title", alim.getTitle());
-        model.addAttribute("content", alim.getContent());
         return "alimTalk/index :: #inputTableDiv";
     }
 
