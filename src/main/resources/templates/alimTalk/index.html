@@ -1,98 +1,152 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
-<link rel="stylesheet" type="text/css" th:href="@{/css/alimtalk.css}">
+
 <head>
-    <meta charset="UTF-8">
-    <title>알림톡</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>잡동사니</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/alimtalk.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
+    <!-- Custom fonts for this template-->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/fontawesome-free/css/all.min.css}">
+    <!-- Custom styles for this template-->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sb-admin-2.css}">
+    <style>
+        .fc-day-sat { color:#0000FF; !important;}
+        .fc-day-sun { color:#FF0000; !important;}
+    </style>
 </head>
-<body>
-    <div id="header">
-        <div th:replace="~{common/header :: header}"></div>
-    </div>
-    <form id="alimForm" method="post" action="insert">
-        <div id="modal" class="hide">
-            <div id="modal_body" class="modal_body">
-                <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
-                    <input id="alimSeq" name="alimSeq" type="hidden">
-                    <ul id="sendTimeUl" class="list-group">
-                        <li th:each="sendTrgt : ${sendList} " onclick="changeSendTime(this);">
-                            <input name="trgtAlimSeq" type="hidden" th:value="${sendTrgt.alimSeq}">
-                            [[${sendTrgt.sendTime}]]
-                        </li>
-                        <li>
-                            <button type="button"class="modal_btn" onclick="changeSendTime(this);" style="width:22px; margin-left:22px;">+</button>
-                        </li>
-                    </ul>
+
+<body id="page-top">
+
+<!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="~{common/sidebar :: sidebar}"></div>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div th:replace="~{common/header :: header}"></div>
+                <!-- End of Topbar -->
+
+                <!-- 알림톡 DIV -->
+                <div class="container-fluid">
+                    <form id="alimForm" method="post" action="insert">
+                        <div id="modal" class="hide">
+                            <div id="modal_body" class="modal_body">
+                                <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px;">
+                                    <input id="alimSeq" name="alimSeq" type="hidden">
+                                    <ul id="sendTimeUl" class="list-group">
+                                        <li th:each="sendTrgt : ${sendList} " onclick="changeSendTime(this);">
+                                            <input name="trgtAlimSeq" type="hidden" th:value="${sendTrgt.alimSeq}">
+                                            [[${sendTrgt.sendTime}]]
+                                        </li>
+                                        <li>
+                                            <button type="button"class="modal_btn" onclick="changeSendTime(this);" style="width:22px; margin-left:22px;">+</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="inputTableDiv" style="float: right; width:78%;">
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <th>일시</th>
+                                            <td>
+                                                <input id="sendDay" type="text" name="sendDay" readonly="true" th:value="${sendDay}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>알림 시간</th>
+                                            <td>
+                                                <select id="amPmSelectBox" style="width:60px;">
+                                                    <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
+                                                    <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
+                                                </select>
+                                                <select id="hourSelectBox" style="width:91px;">
+                                                    <option value="">-- 선택 --</option>
+                                                    <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
+                                                            th:utext="${hour + '시'}">
+                                                    </option>
+                                                </select>
+                                                <select id="minuteSelectBox" style="width:91px;">
+                                                    <option value="">-- 선택 --</option>
+                                                    <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
+                                                            th:utext="${minute+ '분'}">
+                                                    </option>
+                                                </select>
+                                                <input id="sendTime" name="sendTime" type="hidden">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>제목</th>
+                                            <td>
+                                                <input id="title" type="text" name="title" th:value="${title}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>내용</th>
+                                            <td>
+                                                <textarea id="ctnt" rows="6" style="height:200px;" name="content" th:text="${content}">내용</textarea>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="clear: both;"></div>
+                                <div id="btnDiv" style="margin-top:20px;">
+                                    <button class="modal_btn btn btn-primary" onclick="action();">저장</button>
+                                    <button type="button" id="clsBtn" class="modal_btn btn btn-secondary">취소</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="modal_background" class="modal fade" style="width:100%; height:100%; position: absolute;"></div>
+                    <div id="contentDiv" style="overflow: auto">
+                        <div style="clear: both;"></div>
+                        <hr style=" margin-top: 10px; margin-bottom: 30px;"/>
+                        <div>
+                            <div id="calendar" style="width:90%; margin: 0 auto;"></div>
+                        </div>
+                    </div>
                 </div>
-                <div id="inputTableDiv" style="float: right; width:78%;">
-                    <table>
-                        <tbody>
-                        <tr>
-                            <th>일시</th>
-                            <td>
-                                <input id="sendDay" type="text" name="sendDay" readonly="true" th:value="${sendDay}">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>알림 시간</th>
-                            <td>
-                                <select id="amPmSelectBox" style="width:61px;">
-                                    <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
-                                    <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
-                                </select>
-                                <select id="hourSelectBox" style="width:96px;">
-                                    <option value="">-- 선택 --</option>
-                                    <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
-                                            th:utext="${hour + '시'}">
-                                    </option>
-                                </select>
-                                <select id="minuteSelectBox" style="width:96px;">
-                                    <option value="">-- 선택 --</option>
-                                    <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
-                                            th:utext="${minute+ '분'}">
-                                    </option>
-                                </select>
-                                <input id="sendTime" name="sendTime" type="hidden">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>제목</th>
-                            <td>
-                                <input id="title" type="text" name="title" th:value="${title}">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>내용</th>
-                            <td>
-                                <textarea id="content" rows="6" style="height:200px;" name="content" th:text="${content}">내용</textarea>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div style="clear: both;"></div>
-                <div id="btnDiv" style="margin-top:20px;">
-                    <button class="modal_btn" onclick="action();">저장</button>
-                    <button type="button" id="clsBtn" class="modal_btn">취소</button>
-                </div>
+                <!-- Content Row -->
             </div>
+            <!-- End of Content Wrapper -->
+
         </div>
-    </form>
-    <div id="modal_background" class="hide" style="width:100%; height:100%; position: absolute;"></div>
-    <div id="contentDiv" style="overflow: auto">
-        <div style="clear: both;"></div>
-        <hr style=" margin-top: 10px; margin-bottom: 30px;"/>
-        <div>
-            <div id="calendar" style="width:90%; margin: 0 auto;"></div>
-        </div>
+        <!-- End of Page Wrapper -->
+
+        <!-- Scroll to Top Button-->
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
     </div>
 </body>
 </html>
+<!-- Bootstrap core JavaScript-->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="/js/sb-admin-2.min.js"></script>
+
+<!-- Page level custom scripts -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
-<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 <script th:inline="javascript">
     var memberId = "[[${session.member.memberId}]]";
 </script>
@@ -100,13 +154,13 @@
     $(document).ready(function() {
         const calendarEl = $('#calendar')[0];
         const calendar = new FullCalendar.Calendar(calendarEl, {
+            height:500,
             initialView : 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
             headerToolbar : { // 헤더에 표시할 툴 바
-                start : 'prev next today',
+                start : 'prev',
                 center : 'title',
-                end : 'dayGridMonth,dayGridWeek,dayGridDay'
+                end : 'next'
             },
-            //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
             selectable : true, // 달력 일자 드래그 설정가능
             droppable : true,
             editable : true,
@@ -124,7 +178,6 @@
                     selectedHour = Number($('#hourSelectBox option:selected').val()) + 12;
                 }
             } else {
-                debugger;
                 if (selectedHour == 12) {
                     selectedHour = "00";
                 }
@@ -138,7 +191,7 @@
             if ($('#title').val().trim() == '') {
                 alert("제목을 입력해주세요."); return false;
             }
-            if ($('#content').val().trim() == '') {
+            if ($('#ctnt').val().trim() == '') {
                 alert("내용을 입력해주세요."); return false;
             }
 
@@ -216,7 +269,7 @@
             $('#hourSelectBox').val('');
             $('#minuteSelectBox').val('');
             $('#title').val('');
-            $('#content').val('');
+            $('#ctnt').val('');
             $('#alimSeq').val('');
             $("#alimForm").attr("action","insert");
             return;
@@ -231,7 +284,5 @@
                 $("#alimForm").attr("action","update");
             }
         })
-
-
     };
 </script>
