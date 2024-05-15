@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>잡동사니</title>
+    <!-- Custom fonts for this template-->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/alimtalk.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/fontawesome-free/css/all.min.css}">
+    <!-- Custom styles for this template-->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sb-admin-2.css}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+
+<body id="page-top">
+
+<div style="margin-top: 50px;">
+    <form id="notepadForm" method="post" action="insert">
+        <input id="notepadSeq" name="notpadSeq" type="hidden" th:value="${notepad.notepadSeq}">
+        <div>
+            <div>
+                <div id="inputTableDiv" style="height: 85%">
+                    <table style="width: 95%">
+                        <tbody>
+                        <tr>
+                            <th>알림여부</th>
+                            <td style="background-color: #f8f9fc; border-radius: 10px;">
+                                <input type="radio" name="sendYn" class="sendYn" value="N">미발송
+                                <input type="radio" name="sendYn" class="sendYn" value="Y" style="margin-left: 15px;">예약발송
+                                <input type="radio" name="sendYn" class="sendYn" value="G" style="margin-left: 15px;">즉시발송
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>일시</th>
+                            <td>
+                                <input id="sendDay" type="text" name="sendDay" th:value="${notepad.sendDay}" style="background-color: #f8f9fc; border-radius: 10px; width:100%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>알림 시간</th>
+                            <td>
+                                <select id="amPmSelectBox" style="width:87px;">
+                                    <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
+                                    <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
+                                </select>
+                                <select id="hourSelectBox" style="width:157px;">
+                                    <option value="">-- 선택 --</option>
+                                    <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
+                                            th:utext="${hour + '시'}">
+                                    </option>
+                                </select>
+                                <select id="minuteSelectBox" style="width:157px;">
+                                    <option value="">-- 선택 --</option>
+                                    <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
+                                            th:utext="${minute+ '분'}">
+                                    </option>
+                                </select>
+                                <input id="sendTime" name="sendTime" type="hidden">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td>
+                                <input id="title" type="text" name="title" th:value="${notepad.title}" style="background-color: #f8f9fc; border-radius: 10px; width: 100%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td>
+                                <textarea id="ctnt" rows="6" style="height:280px; width: 100%;" name="content" th:text="${notepad.content}">내용</textarea>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="clear: both;"></div>
+                <div id="btnDiv" style="margin-top:20px; text-align: center">
+                    <button class="modal_btn btn btn-primary" onclick="action();">저장</button>
+                    <button type="button" id="clsBtn" class="modal_btn btn btn-secondary">취소</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+<!-- Bootstrap core JavaScript-->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Page level custom scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+<!--datepicker-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/i18n/jquery.ui.datepicker-ko.min.js"></script>
+
+<script th:inline="javascript">
+</script>
+<script>
+    $(document).ready(function() {
+        $('#sendDay').datepicker();
+
+        $('input[name="sendYn"]').on('click', function() {
+
+            $('#sendDay').datepicker('option', 'disabled', true);
+            $('#amPmSelectBox').attr('disabled',true);
+            $('#hourSelectBox').attr('disabled',true);
+            $('#minuteSelectBox').attr('disabled',true);
+
+            if ($(this).val() == 'Y') {
+                $('#sendDay').datepicker('option', 'disabled', false);
+                $('#amPmSelectBox').attr('disabled',false);
+                $('#hourSelectBox').attr('disabled',false);
+                $('#minuteSelectBox').attr('disabled',false);
+            }
+        });
+
+        $('#notepadForm').submit(function () {
+
+            if ($('input[name="sendYn"]:checked').val() == 'Y') {
+                let selectedHour = $('#hourSelectBox option:selected').val();
+                const selectedMinute = $('#minuteSelectBox option:selected').val();
+
+                if ($('#amPmSelectBox option:selected').val() == 'PM') {
+                    if (selectedHour != 12) selectedHour = Number($('#hourSelectBox option:selected').val()) + 12;
+                }
+                else {
+                    if (selectedHour == 12) selectedHour = "00";
+                }
+
+                if (selectedHour == '' || selectedMinute == '') alert("시간을 입력해주세요."); return false;
+            }
+
+            if ($('#title').val().trim() == '') alert("제목을 입력해주세요."); return false;
+            if ($('#ctnt').val().trim() == '') alert("내용을 입력해주세요."); return false;
+
+            $('#sendTime').val(selectedHour + ":" + selectedMinute +":00");
+
+        });
+    });
+</script>

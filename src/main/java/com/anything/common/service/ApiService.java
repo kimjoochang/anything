@@ -14,11 +14,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class ApiService {
-    private final AlimRepository alimRepository;
 
     public ResponseEntity<String> callApi(String url, String token, MultiValueMap<String, String> requestParam, HttpMethod method) throws Exception{
 

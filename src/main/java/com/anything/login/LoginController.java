@@ -36,7 +36,7 @@ public class LoginController {
 
         request.getSession(true).setAttribute("member", member.get());
 
-        return "redirect:/alimTalk/index";
+        return "redirect:/main/index";
     }
 
     @GetMapping("login/logout")
@@ -48,6 +48,6 @@ public class LoginController {
             service.logout(accessToken);
             session.invalidate();
         }
-        return "redirect:/login/index";
+        return "redirect:/main/index";
     }
 }

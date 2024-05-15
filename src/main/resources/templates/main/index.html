@@ -152,13 +152,13 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>TEST</td>
-                                        <td>TEST2222222</td>
-                                        <td>2024/04/25</td>
-                                        <td>미발송</td>
-                                        <td>2024/04/25</td>
+                                    <tr th:each="notepad : ${notepadList}">
+                                        <td th:text="${notepadStat.count}"></td>
+                                        <td th:text="${notepad.title}"></td>
+                                        <td th:text="${notepad.content}"></td>
+                                        <td th:text="${notepad.sendDt}"></td>
+                                        <td th:text="${notepad.sendYn}"></td>
+                                        <td th:text="${notepad.regDt}"></td>
                                     </tr>
                                     </tbody>
                                 </table>

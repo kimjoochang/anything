@@ -27,7 +27,6 @@ public class AlimService implements IAlimService{
     private final AlimRepository repository;
     @Override
     public List<AlimVO> list(AlimVO alimVO) {
-        alimVO.getSendDt();
         Map<String, Object> paramMap = new HashMap<>();
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
