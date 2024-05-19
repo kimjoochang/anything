@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>잡동사니</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/alimtalk.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
+    <!-- Custom fonts for this template-->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/fontawesome-free/css/all.min.css}">
+    <!-- Custom styles for this template-->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sb-admin-2.css}">
+    <style>
+        .fc-day-sat { color:#0000FF; !important;}
+        .fc-day-sun { color:#FF0000; !important;}
+    </style>
+</head>
+
+<body id="page-top">
+<div style="margin-top: 50px;">
+    <form id="alimForm">
+            <div id="timeTableDiv" style="float:left; width:17%; margin-top:8px; border-spacing: 0px 5px;">
+                <input id="alimSeq" name="alimSeq" type="hidden">
+                <ul id="sendTimeUl" class="list-group" style="text-align: center;">
+                    <li th:each="sendTrgt : ${sendList} " onclick="changeSendTime(this);">
+                        <input name="trgtAlimSeq" type="hidden" th:value="${sendTrgt.alimSeq}">
+                        [[${sendTrgt.sendTime}]]
+                    </li>
+                    <li>
+                        <button type="button"class="modal_btn" onclick="changeSendTime(this);" style="width:30px; margin-left:22px;">+</button>
+                    </li>
+                </ul>
+            </div>
+            <div id="inputTableDiv" style="float: right; width:78%;">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>일시</th>
+                        <td>
+                            <input id="sendDay" type="text" name="sendDay" readonly="true" th:value="${sendDay}" style="background-color: #f8f9fc; border-radius: 10px; width:100%; border-width: 0;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>알림 시간</th>
+                        <td>
+                            <select id="amPmSelectBox" style="width:60px;">
+                                <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
+                                <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
+                            </select>
+                            <select id="hourSelectBox" style="width:91px;">
+                                <option value="">-- 선택 --</option>
+                                <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
+                                        th:utext="${hour + '시'}">
+                                </option>
+                            </select>
+                            <select id="minuteSelectBox" style="width:91px;">
+                                <option value="">-- 선택 --</option>
+                                <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
+                                        th:utext="${minute+ '분'}">
+                                </option>
+                            </select>
+                            <input id="sendTime" name="sendTime" type="hidden">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>제목</th>
+                        <td>
+                            <input id="title" type="text" name="title" th:value="${title}"  style="background-color: #f8f9fc; border-radius: 10px; width:100%; border-width: 0;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>내용</th>
+                        <td>
+                            <textarea id="ctnt" rows="6" style="height:200px;" name="content" th:text="${content}">내용</textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="clear: both;"></div>
+            <div id="btnDiv" style="margin-top:20px; text-align: center;">
+                <button id="saveBtn" type="button" class="modal_btn btn btn-primary">저장</button>
+                <button type="button" id="clsBtn" class="modal_btn btn btn-secondary">취소</button>
+            </div>
+    </form>
+</div>
+</body>
+</html>
+<!-- Bootstrap core JavaScript-->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Page level custom scripts -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
+<script th:inline="javascript">
+    var memberId = "[[${session.member.memberId}]]";
+</script>
+<script>
+    $(document).ready(function() {
+        $('#clsBtn').on('click', function() {
+            window.close();
+        });
+
+        $('#saveBtn').on('click', function() {
+            let selectedHour = $('#hourSelectBox option:selected').val();
+            const selectedMinute = $('#minuteSelectBox option:selected').val();
+
+            if ($('#amPmSelectBox option:selected').val() == 'PM') {
+                if (selectedHour != 12) selectedHour = Number($('#hourSelectBox option:selected').val()) + 12;
+            }
+            else {
+                if (selectedHour == 12) selectedHour = "00";
+            }
+
+            if (selectedHour == '' || selectedMinute == '') {
+                alert("시간을 입력해주세요.");  return false;
+            }
+            if ($('#title').val().trim() == '') {
+                alert("제목을 입력해주세요.");  return false;
+            }
+            if ($('#ctnt').val().trim() == '') {
+                alert("내용을 입력해주세요."); return false;
+            }
+
+            $('#sendTime').val(selectedHour + ":" + selectedMinute +":00");
+
+            const url = $('#alimSeq').val() == 0 ? '/alimTalk/insert' : '/alimTalk/update';
+            $.ajax({
+                type : 'post',
+                url : url,
+                data : $('#alimForm').serialize(),
+                success : function (data) {
+                    window.opener.parent.location.reload();
+                    window.close();
+                }
+            })
+
+        });
+    });
+
+    const changeSendTime = function (e) {
+        if (e.type == 'button') {
+            $('#amPmSelectBox').val('AM');
+            $('#hourSelectBox').val('');
+            $('#minuteSelectBox').val('');
+            $('#title').val('');
+            $('#ctnt').val('');
+            $('#alimSeq').val('');
+            $("#alimForm").attr("action","insert");
+            return;
+        }
+        const alimSeq = $(e).find('input').val();
+        $('#alimSeq').val(alimSeq);
+        $.ajax({
+            type : 'get',
+            url : "view?alimSeq="+alimSeq,
+            success : function (data) {
+                $('#inputTableDiv').replaceWith(data);
+                $("#alimForm").attr("action","update");
+            }
+        })
+    };
+</script>

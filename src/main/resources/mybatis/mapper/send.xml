@@ -26,7 +26,7 @@
                    N.SEND_YN       as SEND_CD
             FROM NOTEPAD N
            WHERE N.SEND_DT &lt;= #{sendDt}
-             AND N.SEND_YN = 'Y'
+             AND N.SEND_YN = 'R'
         )
         SELECT ST.CONTENT_SEQ      as contentSeq,
                ST.CONTENT_TYPE   as contentType,

@@ -26,14 +26,14 @@
         <div>
             <div>
                 <div id="inputTableDiv" style="height: 85%">
-                    <table style="width: 95%">
+                    <table style="width: 95%; border-collapse: separate; border-spacing: 0px 5px;">
                         <tbody>
                         <tr>
                             <th>발송유형</th>
-                            <td style="background-color: #f8f9fc; border-radius: 10px;">
-                                <input type="radio" name="sendYn" class="sendYn" value="N" th:checked="${notepad.sendYn == 'N' or notepad.sendYn == ''}">미발송
-                                <input type="radio" name="sendYn" class="sendYn" value="Y" th:checked="${notepad.sendYn == 'Y'}" style="margin-left: 15px;">예약발송
-                                <input type="radio" name="sendYn" class="sendYn" value="G" th:checked="${notepad.sendYn == 'G'}" style="margin-left: 15px;">즉시발송
+                            <td style="background-color: #f8f9fc; border-radius: 10px; text-align: center;">
+                                <input type="radio" name="sendYn" class="sendYn" value="N" th:checked="${notepad.sendYn == 'N' or notepad.sendYn == null}">미발송
+                                <input type="radio" name="sendYn" class="sendYn" value="R" th:checked="${notepad.sendYn == 'R'}" style="margin-left: 15px;">예약발송
+                                <input type="radio" name="sendYn" class="sendYn" value="D" th:checked="${notepad.sendYn == 'D'}" style="margin-left: 15px;">즉시발송
                             </td>
                         </tr>
                         <tr>
@@ -112,19 +112,20 @@
         $('#sendDay').datepicker();
 
         $('input[name="sendYn"]').on('click', function() {
+            $('#sendDay').val();
             $('#sendDay').datepicker('option', 'disabled', true);
             $('#amPmSelectBox').attr('disabled',true);
             $('#hourSelectBox').attr('disabled',true);
             $('#minuteSelectBox').attr('disabled',true);
 
-            if ($(this).val() == 'Y') {
+            if ($(this).val() == 'R') {
                 $('#sendDay').datepicker('option', 'disabled', false);
                 $('#amPmSelectBox').attr('disabled',false);
                 $('#hourSelectBox').attr('disabled',false);
                 $('#minuteSelectBox').attr('disabled',false);
             }
             // 즉시 발송이라면
-            else if ($(this).val() == 'G') {
+            else if ($(this).val() == 'D') {
                 $('#sendDay').val(moment().format('YYYY-MM-DD'));
             }
         });
@@ -136,7 +137,7 @@
         });
 
         $('#saveBtn').on('click', function() {
-            if ($('input[name="sendYn"]:checked').val() == 'Y') {
+            if ($('input[name="sendYn"]:checked').val() == 'R') {
                 let selectedHour = $('#hourSelectBox option:selected').val();
                 const selectedMinute = $('#minuteSelectBox option:selected').val();
 

@@ -21,7 +21,6 @@ import java.util.Map;
 @Slf4j
 public class NotepadService {
     private final NotepadRepository repository;
-    private final SendService sendService;
     public List<NotepadVO> list(long memberId) {
         return repository.list(memberId);
     }
@@ -37,17 +36,7 @@ public class NotepadService {
         } catch (Exception e) {
             e.getMessage();
         }
-        int affected = repository.insert(notepadVO);
-
-        if (affected != 1) {
-            return affected;
-        }
-
-        // 즉시발송일 때
-        if ("G".equals(notepadVO.getSendYn())) {
-            sendService.sendAction(createSendVO(notepadVO, member));
-        }
-        return affected;
+        return repository.insert(notepadVO);
     }
     public int updateAction(MemberVO member, NotepadVO notepadVO) {
         notepadVO.setMemberId(member.getMemberId());
@@ -58,21 +47,9 @@ public class NotepadService {
         } catch (Exception e) {
             e.getMessage();
         }
-
-        int affected =  repository.update(notepadVO);
-
-        if (affected != 1) {
-            return affected;
-        }
-
-        // 즉시발송일 때
-        if ("G".equals(notepadVO.getSendYn())) {
-            sendService.sendAction(createSendVO(notepadVO, member));
-        }
-
-        return affected;
+        return repository.update(notepadVO);
     }
-    private SendVO createSendVO(NotepadVO notepadVO, MemberVO memberVO) {
+    public SendVO createSendVO(NotepadVO notepadVO, MemberVO memberVO) {
         SendVO sendVO = new SendVO();
 
         sendVO.setContentSeq(notepadVO.getNotepadSeq());

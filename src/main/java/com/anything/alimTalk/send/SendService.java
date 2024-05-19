@@ -116,7 +116,8 @@ public class SendService {
             // 발송처리
             try {
                 sendMsg(trgt);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 log.error("ALIM SEQ : " + trgt.getContentSeq() +  "SEND ERROR : " +e.getMessage());
                 trgt.setSendCd("E");
                 trgt.setSendStusMsg("SEND_ERROR");
@@ -135,12 +136,18 @@ public class SendService {
             return;
         }
 
-        // alim 테이블 후처리 (notepad 테이블은 필요없음)
+        // alim 테이블 후처리 대상
         List<SendVO> alimSendList = sendList.stream()
                                             .filter(t -> "ALIMTALK".equals(t.getContentType()))
                                             .collect(Collectors.toList());
 
+        // notepad 테이블 후처리 대상
+        List<SendVO> notepadSendList = sendList.stream()
+                .filter(t -> "NOTEPAD".equals(t.getContentType()))
+                .collect(Collectors.toList());
+
         if (alimSendList.size() > 0) repository.updateAlimSendCd(alimSendList);
+        if (alimSendList.size() > 0) repository.updateNotepadSendCd(notepadSendList);
 
         log.info("SENDACTION END!!!!");
     }

@@ -1,5 +1,6 @@
 package com.anything.notepad;
 
+import com.anything.alimTalk.send.SendService;
 import com.anything.common.service.CommonService;
 import com.anything.login.MemberVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class NotepadController {
 
     private final NotepadService service;
+    private final SendService sendService;
     private final CommonService commonService;
 
     @GetMapping("notepad/index")
@@ -30,12 +32,26 @@ public class NotepadController {
     public String insertAction(HttpServletRequest request, NotepadVO notepadVO) {
         MemberVO member = (MemberVO)request.getSession().getAttribute("member");
         int result = service.insertAction(member, notepadVO);
+
+        if (result == 1) {
+            // 즉시발송일 때 (롤백 방지를 위해 컨트롤러에서 호출)
+            if ("D".equals(notepadVO.getSendYn())) {
+                sendService.sendAction(service.createSendVO(notepadVO, member));
+            }
+        }
         return "notepad/index";
     }
     @PostMapping("notepad/update")
     public String updateAction(HttpServletRequest request, NotepadVO notepadVO) {
         MemberVO member = (MemberVO)request.getSession().getAttribute("member");
         int result = service.updateAction(member, notepadVO);
+
+        if (result == 1) {
+            // 즉시발송일 때 (롤백 방지를 위해 컨트롤러에서 호출)
+            if ("D".equals(notepadVO.getSendYn())) {
+                sendService.sendAction(service.createSendVO(notepadVO, member));
+            }
+        }
         return "notepad/index";
     }
 
