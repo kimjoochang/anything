@@ -12,7 +12,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("LoginInterceptor : preHandle IN!!!!");
         if (request.getSession().getAttribute("member") == null) {
-            response.sendRedirect("/main/index");
+            log.info("LoginInterceptor : NO SESSION!!!");
+            response.sendRedirect("/login/index");
             return false;
         }
         return true;

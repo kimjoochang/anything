@@ -23,9 +23,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class AlimService implements IAlimService{
+public class AlimService {
     private final AlimRepository repository;
-    @Override
     public List<AlimVO> list(AlimVO alimVO) {
         Map<String, Object> paramMap = new HashMap<>();
         try {
@@ -38,18 +37,14 @@ public class AlimService implements IAlimService{
         return repository.list(paramMap);
     }
 
-    @Override
     public AlimVO view(AlimVO alimVO) {
-
         return repository.view(alimVO);
     }
 
-    @Override
     public List<AlimVO> listSendTime(AlimVO alimVO) {
         return repository.listSendTime(alimVO);
     }
 
-    @Override
     public int insertAction(long memberId, AlimVO alimVO) {
         alimVO.setMemberId(memberId);
 
@@ -62,7 +57,6 @@ public class AlimService implements IAlimService{
         return repository.insert(alimVO);
     }
 
-    @Override
     public int updateAction(long memberId, AlimVO alimVO) {
         alimVO.setMemberId(memberId);
 
@@ -72,38 +66,7 @@ public class AlimService implements IAlimService{
         } catch (Exception e) {
             e.getMessage();
         }
-
        return repository.update(alimVO);
-    }
-
-    @Override
-    public List<String> getHourList() {
-        List<String> hours = new ArrayList<>();
-
-        for(int i=1; i < 13; i++) {
-            if (i-10 < 0) {
-                hours.add("0" + Integer.toString(i));
-            } else {
-                hours.add(Integer.toString(i));
-            }
-        }
-
-        return hours;
-    }
-
-    @Override
-    public List<String> getTimeList() {
-        List<String> minutes = new ArrayList<>();
-
-        for(int i=0; i < 60; i=i+5) {
-
-            if (i-10 < 0) {
-                minutes.add("0" + Integer.toString(i));
-            } else {
-                minutes.add(Integer.toString(i));
-            }
-        }
-        return minutes;
     }
 
 }

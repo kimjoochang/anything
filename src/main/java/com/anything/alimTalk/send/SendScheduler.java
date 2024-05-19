@@ -13,6 +13,6 @@ public class SendScheduler {
 
     @Scheduled (cron = "0 0/5 * * * ?") //5분
     public void run() {
-        service.sendAction();
+        service.sendAction(null);
     }
 }

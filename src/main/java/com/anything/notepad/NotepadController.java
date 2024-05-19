@@ -29,31 +29,27 @@ public class NotepadController {
     @PostMapping("notepad/insert")
     public String insertAction(HttpServletRequest request, NotepadVO notepadVO) {
         MemberVO member = (MemberVO)request.getSession().getAttribute("member");
-        int result = service.insertAction(member.getMemberId(), notepadVO);
+        int result = service.insertAction(member, notepadVO);
         return "notepad/index";
     }
     @PostMapping("notepad/update")
     public String updateAction(HttpServletRequest request, NotepadVO notepadVO) {
         MemberVO member = (MemberVO)request.getSession().getAttribute("member");
-        int result = service.updateAction(member.getMemberId(), notepadVO);
+        int result = service.updateAction(member, notepadVO);
         return "notepad/index";
     }
 
     @GetMapping("notepad/form")
     public String form(Model model, NotepadVO notepadVO) {
-
-        NotepadVO notepad = notepadVO.getNotepadSeq() == 0 ? new NotepadVO() : service.view(notepadVO);
+        NotepadVO notepad = notepadVO.getNotepadSeq() == 0  ? new NotepadVO() : service.view(notepadVO);
 
         String AMPM = "AM";
         String sendHour = "";
         String sendMinute = "";
 
-        if (notepad == null) {
-            notepad = new NotepadVO();
-        }
-        else {
+        if (notepad.getSendTime() != null) {
             sendMinute = notepad.getSendTime().substring(3);
-            sendHour = notepad.getSendTime().substring(0,2);
+            sendHour = notepad.getSendTime().substring(0, 2);
             int sendHourInt = Integer.parseInt(sendHour);
 
             if (sendHourInt >= 12) {
@@ -62,8 +58,8 @@ public class NotepadController {
             }
         }
 
-        model.addAttribute("hours", service.getHourList());
-        model.addAttribute("minutes", service.getTimeList());
+        model.addAttribute("hours", commonService.getHourList());
+        model.addAttribute("minutes", commonService.getTimeList());
         model.addAttribute("notepad", notepad);
         model.addAttribute("AMPM", AMPM);
         model.addAttribute("selectedHour", sendHour);

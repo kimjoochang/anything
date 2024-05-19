@@ -42,7 +42,7 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">TO-DO</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                        <a id="todoBtn" href="/alimTalk/index" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-sm text-white-50"></i>추가</a>
                     </div>
 
@@ -135,7 +135,7 @@
                     <div class="card shadow mb-4">
                         <div class="d-sm-flex card-header py-3 justify-content-between">
                             <h1 class="h3 mb-0 text-gray-800">메모장</h1>
-                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                            <a id="notepadAddBtn" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                     class="fas fa-sm text-white-50"></i>추가</a>
                         </div>
                         <div class="card-body">
@@ -147,18 +147,19 @@
                                         <th>제목</th>
                                         <th>내용</th>
                                         <th>알림발송일</th>
-                                        <th>발송여부</th>
+                                        <th>발송유형</th>
                                         <th>등록일</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr th:each="notepad : ${notepadList}">
+                                        <input id="notepadSeq" name="notpadSeq" type="hidden" th:value="${notepad.notepadSeq}">
                                         <td th:text="${notepadStat.count}"></td>
                                         <td th:text="${notepad.title}"></td>
                                         <td th:text="${notepad.content}"></td>
-                                        <td th:text="${notepad.sendDt}"></td>
-                                        <td th:text="${notepad.sendYn}"></td>
-                                        <td th:text="${notepad.regDt}"></td>
+                                        <td th:text="${#dates.format(notepad.sendDt, 'yyyy-MM-dd')}"></td>
+                                        <td th:text="${notepad.sendYn.equals('Y') ? '예약발송' : notepad.sendYn.equals('N') ? '미발송' : '즉시발송'}"></td>
+                                        <td th:text="${#dates.format(notepad.regDt, 'yyyy-MM-dd')}"></td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -226,3 +227,24 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#notepadAddBtn').on('click', function() {
+            openNotePadForm(0);
+        });
+
+        $('#dataTable tr').on('click', function(){
+            openNotePadForm($(this).find('#notepadSeq').val());
+        });
+    });
+
+    const openNotePadForm = function (notepadSeq) {
+        const url = "/notepad/form?notepadSeq=" + notepadSeq;
+        const width = 600;
+        const height = 600;
+        const popupX = Math.ceil(( window.screen.width - width )/2);
+        const popupY = Math.ceil(( window.screen.height - height )/2);
+        const options = 'width=' + width + ', height=' + height + ', left='+ popupX + ', top=' + popupY + ', status=no, menubar=no, toolbar=no, resizable=no';
+        window.open(url, 'formPop', options);
+    };
+</script>

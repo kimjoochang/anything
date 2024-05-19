@@ -25,17 +25,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class LoginService implements ILoginService {
+public class LoginService {
     private final LoginRepository repository;
     private final KakaoConfig kakaoConfig;
     private final FileConfig fileConfig;
     private final ApiService apiService;
 
-    @Override
     public Optional<MemberVO> saveAction(OauthTokenDto oauthTokenDto) {
         final String KAKAO = "kakao";
 
         ResponseEntity<String> userInfoResponse = null;
+
         try {
             userInfoResponse = apiService.callApi(kakaoConfig.userInfoUrl, oauthTokenDto.getAccess_token(), null, HttpMethod.GET);
             log.info(userInfoResponse.toString());
@@ -70,7 +70,6 @@ public class LoginService implements ILoginService {
         return repository.insert(member) == 0 ? null : Optional.of(member);
     }
 
-    @Override
     public Optional<OauthTokenDto> getToken(String code) {
 
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>();
@@ -90,7 +89,6 @@ public class LoginService implements ILoginService {
         return Optional.of(new Gson().fromJson(response.getBody(), OauthTokenDto.class));
     }
 
-    @Override
     public void logout(String accessToken) {
         String logoutURL = "https://kapi.kakao.com/v1/user/logout";
         try {

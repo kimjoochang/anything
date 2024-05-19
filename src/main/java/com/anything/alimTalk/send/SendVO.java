@@ -10,8 +10,13 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class SendVO extends AlimVO {
+public class SendVO extends BaseVO {
     Long sendSeq;
+    String contentType;
+    Long contentSeq;
+    String title;
+    String content;
+    String sendCd;
     String sendStusMsg;
     String accessToken;
     String refreshToken;

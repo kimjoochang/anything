@@ -5,24 +5,47 @@
 
 <mapper namespace="com.anything.alimTalk.send.SendRepository">
     <select id="list" resultType="SendVO" parameterType="java.util.Map">
-        SELECT A.ALIM_SEQ      as alimSeq,
-               A.MEMBER_ID     as memberId,
-               A.TITLE         as title,
-               A.CONTENT       as content,
-               A.SEND_DT       as sendDt,
-               B.ACCESS_TOKEN  as accessToken,
-               B.REFRESH_TOKEN as refreshToken,
-               B.LOGIN_DT      as loginDt
-        FROM ALIM A
-        LEFT JOIN MEMBER B
-               ON A.MEMBER_ID = B.MEMBER_ID
-       WHERE A.SEND_DT &lt;= #{sendDt}
-         AND A.SEND_CD = 'N'
+        WITH SEND_TARGET AS (
+            SELECT A.ALIM_SEQ      as CONTENT_SEQ,
+                   'ALIMTALK'      as CONTENT_TYPE,
+                   A.MEMBER_ID     as MEMBER_ID,
+                   A.TITLE         as TITLE,
+                   A.CONTENT       as CONTENT,
+                   A.SEND_DT       as SEND_DT,
+                   A.SEND_CD       AS SEND_CD
+            FROM ALIM A
+           WHERE A.SEND_DT &lt;= #{sendDt}
+             AND A.SEND_CD = 'N'
+            UNION ALL
+            SELECT N.NOTEPAD_SEQ   as CONTENT_SEQ,
+                   'NOTEPAD'       as CONTENT_TYPE,
+                   N.MEMBER_ID     as MEMBER_ID,
+                   N.TITLE         as TITLE,
+                   N.CONTENT       as CONTENT,
+                   N.SEND_DT       as SEND_DT,
+                   N.SEND_YN       as SEND_CD
+            FROM NOTEPAD N
+           WHERE N.SEND_DT &lt;= #{sendDt}
+             AND N.SEND_YN = 'Y'
+        )
+        SELECT ST.CONTENT_SEQ      as contentSeq,
+               ST.CONTENT_TYPE   as contentType,
+               ST.MEMBER_ID     as memberId,
+               ST.TITLE         as title,
+               ST.CONTENT       as content,
+               ST.SEND_DT       as sendDt,
+               M.ACCESS_TOKEN   as accessToken,
+               M.REFRESH_TOKEN  as refreshToken,
+               M.LOGIN_DT       as loginDt
+        FROM SEND_TARGET ST
+        LEFT JOIN MEMBER M
+               ON ST.MEMBER_ID = M.MEMBER_ID
     </select>
 
     <insert id="insert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="sendSeq">
         INSERT INTO SEND
-            (ALIM_SEQ,
+            (CONTENT_SEQ,
+             CONTENT_TYPE,
              MEMBER_ID,
              SEND_STUS_MSG,
              REG_ID,
@@ -30,8 +53,9 @@
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
-             #{item.alimSeq},
-             #{item.memberId},
+            #{item.contentSeq},
+            #{item.contentType},
+            #{item.memberId},
              #{item.sendStusMsg},
             #{item.regId},
              now()
@@ -46,11 +70,19 @@
             WHERE MEMBER_ID = #{memberId}
     </update>
 
-    <update id="updateSendCd" parameterType="java.util.List">
+    <update id="updateAlimSendCd" parameterType="java.util.List">
         <foreach collection="list" item="item" separator=";">
             UPDATE ALIM
                SET SEND_CD  = #{item.sendCd}
-             WHERE ALIM_SEQ = #{item.alimSeq}
+             WHERE ALIM_SEQ = #{item.contentSeq}
+        </foreach>
+    </update>
+
+    <update id="updateNotepadSendCd" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE NOTEPAD
+               SET SEND_YN  = #{item.sendCd}
+             WHERE NOTEPAD_SEQ = #{item.contentSeq}
         </foreach>
     </update>
 

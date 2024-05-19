@@ -21,44 +21,44 @@
 <body id="page-top">
 
 <div style="margin-top: 50px;">
-    <form id="notepadForm" method="post" action="insert">
-        <input id="notepadSeq" name="notpadSeq" type="hidden" th:value="${notepad.notepadSeq}">
+    <form id="notepadForm" method="post">
+        <input id="notepadSeq" name="notepadSeq" type="hidden" th:value="${notepad.notepadSeq}">
         <div>
             <div>
                 <div id="inputTableDiv" style="height: 85%">
                     <table style="width: 95%">
                         <tbody>
                         <tr>
-                            <th>알림여부</th>
+                            <th>발송유형</th>
                             <td style="background-color: #f8f9fc; border-radius: 10px;">
-                                <input type="radio" name="sendYn" class="sendYn" value="N">미발송
-                                <input type="radio" name="sendYn" class="sendYn" value="Y" style="margin-left: 15px;">예약발송
-                                <input type="radio" name="sendYn" class="sendYn" value="G" style="margin-left: 15px;">즉시발송
+                                <input type="radio" name="sendYn" class="sendYn" value="N" th:checked="${notepad.sendYn == 'N' or notepad.sendYn == ''}">미발송
+                                <input type="radio" name="sendYn" class="sendYn" value="Y" th:checked="${notepad.sendYn == 'Y'}" style="margin-left: 15px;">예약발송
+                                <input type="radio" name="sendYn" class="sendYn" value="G" th:checked="${notepad.sendYn == 'G'}" style="margin-left: 15px;">즉시발송
                             </td>
                         </tr>
                         <tr>
                             <th>일시</th>
                             <td>
-                                <input id="sendDay" type="text" name="sendDay" th:value="${notepad.sendDay}" style="background-color: #f8f9fc; border-radius: 10px; width:100%;">
+                                <input id="sendDay" type="text" name="sendDay" th:value="${notepad.sendDay}" style="background-color: #f8f9fc; border-radius: 10px; width:100%; border-width: 0;">
                             </td>
                         </tr>
                         <tr>
                             <th>알림 시간</th>
                             <td>
-                                <select id="amPmSelectBox" style="width:87px;">
+                                <select id="amPmSelectBox" style="width:100px;">
                                     <option value="AM" th:selected="${AMPM} == 'AM'">오전</option>
                                     <option value="PM" th:selected="${AMPM} == 'PM'" >오후</option>
                                 </select>
-                                <select id="hourSelectBox" style="width:157px;">
+                                <select id="hourSelectBox" style="width:189px;">
                                     <option value="">-- 선택 --</option>
                                     <option th:each="hour : ${hours}" th:value="${hour}" th:selected="${hour} == ${selectedHour}"
                                             th:utext="${hour + '시'}">
                                     </option>
                                 </select>
-                                <select id="minuteSelectBox" style="width:157px;">
+                                <select id="minuteSelectBox" style="width:189px;">
                                     <option value="">-- 선택 --</option>
                                     <option th:each="minute : ${minutes}" th:value="${minute}" th:selected="${minute} == ${selectedMinute}"
-                                            th:utext="${minute+ '분'}">
+                                            th:utext="${minute + '분'}">
                                     </option>
                                 </select>
                                 <input id="sendTime" name="sendTime" type="hidden">
@@ -67,7 +67,7 @@
                         <tr>
                             <th>제목</th>
                             <td>
-                                <input id="title" type="text" name="title" th:value="${notepad.title}" style="background-color: #f8f9fc; border-radius: 10px; width: 100%;">
+                                <input id="title" type="text" name="title" th:value="${notepad.title}" style="background-color: #f8f9fc; border-radius: 10px; width: 100%; border-width: 0;">
                             </td>
                         </tr>
                         <tr>
@@ -81,7 +81,7 @@
                 </div>
                 <div style="clear: both;"></div>
                 <div id="btnDiv" style="margin-top:20px; text-align: center">
-                    <button class="modal_btn btn btn-primary" onclick="action();">저장</button>
+                    <button id="saveBtn" type="button" class="modal_btn btn btn-primary">저장</button>
                     <button type="button" id="clsBtn" class="modal_btn btn btn-secondary">취소</button>
                 </div>
             </div>
@@ -112,7 +112,6 @@
         $('#sendDay').datepicker();
 
         $('input[name="sendYn"]').on('click', function() {
-
             $('#sendDay').datepicker('option', 'disabled', true);
             $('#amPmSelectBox').attr('disabled',true);
             $('#hourSelectBox').attr('disabled',true);
@@ -124,10 +123,19 @@
                 $('#hourSelectBox').attr('disabled',false);
                 $('#minuteSelectBox').attr('disabled',false);
             }
+            // 즉시 발송이라면
+            else if ($(this).val() == 'G') {
+                $('#sendDay').val(moment().format('YYYY-MM-DD'));
+            }
         });
 
-        $('#notepadForm').submit(function () {
+        $('input[name="sendYn"]:checked').trigger('click');
 
+        $('#clsBtn').on('click', function() {
+            window.close();
+        });
+
+        $('#saveBtn').on('click', function() {
             if ($('input[name="sendYn"]:checked').val() == 'Y') {
                 let selectedHour = $('#hourSelectBox option:selected').val();
                 const selectedMinute = $('#minuteSelectBox option:selected').val();
@@ -139,13 +147,30 @@
                     if (selectedHour == 12) selectedHour = "00";
                 }
 
-                if (selectedHour == '' || selectedMinute == '') alert("시간을 입력해주세요."); return false;
+                if (selectedHour == '' || selectedMinute == '') {
+                    alert("시간을 입력해주세요."); return false;
+                }
+
+                $('#sendTime').val(selectedHour + ":" + selectedMinute +":00");
             }
 
-            if ($('#title').val().trim() == '') alert("제목을 입력해주세요."); return false;
-            if ($('#ctnt').val().trim() == '') alert("내용을 입력해주세요."); return false;
+            if ($('#title').val().trim() == '') {
+                alert("제목을 입력해주세요."); return false;
+            }
+            if ($('#ctnt').val().trim() == '') {
+                alert("내용을 입력해주세요."); return false;
+            }
 
-            $('#sendTime').val(selectedHour + ":" + selectedMinute +":00");
+            const url = $('#notepadSeq').val() == 0 ? '/notepad/insert' : '/notepad/update';
+            $.ajax({
+                type : 'post',
+                url : url,
+                data : $('#notepadForm').serialize(),
+                success : function (data) {
+                    window.opener.parent.location.reload();
+                    window.close();
+                }
+            })
 
         });
     });

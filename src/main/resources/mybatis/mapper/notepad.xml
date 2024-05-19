@@ -14,9 +14,9 @@
                DATE_FORMAT(SEND_DT,'%Y-%m-%d %H:%i')  as sendDt,
                SEND_CD         as sendCd,
                REG_ID          as regId,
-               DATE_FORMAT(REG_DT,'%Y-%m-%d %H:%i')   as regDt,
+               DATE_FORMAT(REG_DT,'%Y-%m-%d')   as regDt,
                MODI_ID         as modiId,
-               DATE_FORMAT(MODI_DT,'%Y-%m-%d %H:%i')  as regDt,
+               DATE_FORMAT(MODI_DT,'%Y-%m-%d')  as modiDt
         FROM NOTEPAD
         WHERE MEMBER_ID = #{memberId}
         ORDER BY REG_DT DESC
@@ -43,13 +43,14 @@
     </insert>
 
     <update id="update" parameterType="notepadVO">
-        UPDATE ALIM
+        UPDATE NOTEPAD
         SET TITLE  = #{title},
             CONTENT = #{content},
             SEND_DT = #{sendDt},
+            SEND_YN = #{sendYn},
             MODI_ID = #{memberId},
             MODI_DT = now()
-        WHERE ALIM_SEQ = #{alimSeq}
+        WHERE NOTEPAD_SEQ = #{notepadSeq}
     </update>
 
 </mapper>

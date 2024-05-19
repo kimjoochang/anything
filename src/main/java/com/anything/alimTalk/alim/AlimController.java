@@ -1,7 +1,9 @@
 package com.anything.alimTalk.alim;
 
 import com.anything.alimTalk.send.SendService;
+import com.anything.common.service.CommonService;
 import com.anything.login.MemberVO;
+import com.anything.notepad.NotepadVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +23,12 @@ import java.util.Map;
 public class AlimController {
 
     private final AlimService service;
-    private final SendService sendService;
+    private final CommonService commonService;
     @GetMapping("alimTalk/index")
     public String index(Model model, HttpServletRequest request) {
 
-        model.addAttribute("hours", service.getHourList());
-        model.addAttribute("minutes", service.getTimeList());
+        model.addAttribute("hours", commonService.getHourList());
+        model.addAttribute("minutes", commonService.getTimeList());
 
         return "alimTalk/index";
     }
@@ -44,32 +46,28 @@ public class AlimController {
 
         AlimVO alim = service.view(alimVO);
 
-        String selectedHour = alim.getSendTime().startsWith("00")  ? "12" : alim.getSendTime().substring(0,2);
-        int selectedHourNum = Integer.parseInt(alim.getSendTime().substring(0,2));
         String AMPM = "AM";
-        if (selectedHourNum >= 12) {
+        String sendHour = alim.getSendTime().substring(0,2);
+        String sendMinute = alim.getSendTime().substring(3);
+
+        int sendHourInt = Integer.parseInt(sendHour);
+
+        if (sendHourInt >= 12) {
             AMPM = "PM";
-            int hour = selectedHourNum - 12;
-            if (selectedHourNum == 12) {
-                selectedHour = "12";
-            }
-            else if (hour-10 < 0) {
-                selectedHour = "0" + Integer.toString(hour);
-            } else {
-                selectedHour = Integer.toString(hour);
-            }
+            sendHour = commonService.format12Hour(sendHourInt);
         }
-        model.addAttribute("hours", service.getHourList());
-        model.addAttribute("minutes", service.getTimeList());
+
+        model.addAttribute("hours", commonService.getHourList());
+        model.addAttribute("minutes", commonService.getTimeList());
 
         model.addAttribute("alimSeq", alim.getAlimSeq());
         model.addAttribute("sendDay", alim.getSendDay());
         model.addAttribute("title", alim.getTitle());
         model.addAttribute("content", alim.getContent());
         model.addAttribute("AMPM", AMPM);
-        model.addAttribute("selectedHour", selectedHour);
-        model.addAttribute("selectedMinute", alim.getSendTime().substring(3));
-        return "alimTalk/index :: #inputTableDiv";
+        model.addAttribute("selectedHour", sendHour);
+        model.addAttribute("selectedMinute", sendMinute);
+        return "alimTalk/form :: #inputTableDiv";
     }
 
     @PostMapping("alimTalk/insert")
@@ -83,6 +81,17 @@ public class AlimController {
         MemberVO member = (MemberVO)request.getSession().getAttribute("member");
         int result = service.updateAction(member.getMemberId(), alimVO);
         return "alimTalk/index";
+    }
+
+    @GetMapping("alimTalk/form")
+    public String form(Model model, AlimVO alimVO) {
+
+        model.addAttribute("sendDay", alimVO.getSendDay());
+        model.addAttribute("hours", commonService.getHourList());
+        model.addAttribute("minutes", commonService.getTimeList());
+        model.addAttribute("sendList", service.listSendTime(alimVO));
+
+        return "alimTalk/form";
     }
 
 }

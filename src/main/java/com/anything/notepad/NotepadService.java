@@ -1,5 +1,9 @@
 package com.anything.notepad;
 
+import com.anything.alimTalk.send.SendService;
+import com.anything.alimTalk.send.SendVO;
+import com.anything.common.service.ApiService;
+import com.anything.login.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,21 +19,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class NotepadService implements INotepadService {
+public class NotepadService {
     private final NotepadRepository repository;
-    @Override
+    private final SendService sendService;
     public List<NotepadVO> list(long memberId) {
         return repository.list(memberId);
     }
-
-    @Override
     public NotepadVO view(NotepadVO notepadVO) {
         return repository.view(notepadVO);
     }
-
-    @Override
-    public int insertAction(long memberId, NotepadVO notepadVO) {
-        notepadVO.setMemberId(memberId);
+    public int insertAction(MemberVO member, NotepadVO notepadVO) {
+        notepadVO.setMemberId(member.getMemberId());
 
         String sendDt = notepadVO.getSendDay()+ " " + notepadVO.getSendTime();
         try {
@@ -37,12 +37,20 @@ public class NotepadService implements INotepadService {
         } catch (Exception e) {
             e.getMessage();
         }
-        return repository.insert(notepadVO);
-    }
+        int affected = repository.insert(notepadVO);
 
-    @Override
-    public int updateAction(long memberId, NotepadVO notepadVO) {
-        notepadVO.setMemberId(memberId);
+        if (affected != 1) {
+            return affected;
+        }
+
+        // 즉시발송일 때
+        if ("G".equals(notepadVO.getSendYn())) {
+            sendService.sendAction(createSendVO(notepadVO, member));
+        }
+        return affected;
+    }
+    public int updateAction(MemberVO member, NotepadVO notepadVO) {
+        notepadVO.setMemberId(member.getMemberId());
 
         String sendDt = notepadVO.getSendDay()+ " " + notepadVO.getSendTime();
         try {
@@ -51,37 +59,32 @@ public class NotepadService implements INotepadService {
             e.getMessage();
         }
 
-       return repository.update(notepadVO);
-    }
+        int affected =  repository.update(notepadVO);
 
-    @Override
-    public List<String> getHourList() {
-        List<String> hours = new ArrayList<>();
-
-        for(int i=1; i < 13; i++) {
-            if (i-10 < 0) {
-                hours.add("0" + Integer.toString(i));
-            } else {
-                hours.add(Integer.toString(i));
-            }
+        if (affected != 1) {
+            return affected;
         }
 
-        return hours;
-    }
-
-    @Override
-    public List<String> getTimeList() {
-        List<String> minutes = new ArrayList<>();
-
-        for(int i=0; i < 60; i=i+5) {
-
-            if (i-10 < 0) {
-                minutes.add("0" + Integer.toString(i));
-            } else {
-                minutes.add(Integer.toString(i));
-            }
+        // 즉시발송일 때
+        if ("G".equals(notepadVO.getSendYn())) {
+            sendService.sendAction(createSendVO(notepadVO, member));
         }
-        return minutes;
-    }
 
+        return affected;
+    }
+    private SendVO createSendVO(NotepadVO notepadVO, MemberVO memberVO) {
+        SendVO sendVO = new SendVO();
+
+        sendVO.setContentSeq(notepadVO.getNotepadSeq());
+        sendVO.setContentType("NOTEPAD");
+        sendVO.setMemberId(memberVO.getMemberId());
+        sendVO.setTitle(notepadVO.getTitle());
+        sendVO.setContent(notepadVO.getContent());
+        sendVO.setAccessToken(memberVO.getAccessToken());
+        sendVO.setRefreshToken(memberVO.getRefreshToken());
+        sendVO.setLoginDt(memberVO.getLoginDt());
+        sendVO.setRegId(memberVO.getMemberId());
+
+        return sendVO;
+    }
 }

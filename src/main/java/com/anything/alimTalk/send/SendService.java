@@ -22,28 +22,39 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class SendService implements ISendService {
+public class SendService {
     private final SendRepository repository;
     private final ApiService apiService;
     private final KakaoConfig kakaoConfig;
 
-    @Override
-    public void sendAction() {
-        long SCHEDULER_ID = 9999;
-        log.info("SCHEDULER START!!!!");
+    public void sendAction(SendVO sendVO) {
+        // 스케줄러ID
+        long systemId = 9999;
+        boolean isScheduleJob = sendVO == null ? true : false;
+        List<SendVO> sendList = null;
         Date now = new Date();
-        List<SendVO> sendList = repository.list(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now));
 
+        // 즉시발송이면 파라미터만 처리
+        if (isScheduleJob == false) {
+            log.info("SENDACTION START!!!!");
+            isScheduleJob = false;
+            sendList = new ArrayList<SendVO>();
+            sendList.add(sendVO);
+        }
+        // 스케줄러면 대상 건 조회
+        else {
+            log.info("SCHEDULER START!!!!");
+            sendList = repository.list(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now));
+        }
+
+        // 발송대상 없으면 종료
         if (sendList.size() == 0) {
             return;
         }
@@ -53,7 +64,10 @@ public class SendService implements ISendService {
         long currentTimeMilis = System.currentTimeMillis();
 
         for (SendVO trgt : sendList) {
-            trgt.setRegId(SCHEDULER_ID);
+            // 스케줄러 실행이면 등록자 systemId로 세팅
+            if (isScheduleJob) {
+                trgt.setRegId(systemId);
+            }
 
             long loginTimeMilis = trgt.getLoginDt().getTime();
 
@@ -67,7 +81,7 @@ public class SendService implements ISendService {
                 try {
                     newToken = getRefreshToken(trgt.getRefreshToken());
                 } catch (Exception e) {
-                    log.error("ALIM SEQ : " + trgt.getAlimSeq() + "GET TOKEN ERROR : " +e.getMessage());
+                    log.error("CONTENT SEQ : " + trgt.getContentSeq() + "GET TOKEN ERROR : " +e.getMessage());
                     trgt.setSendCd("E");
                     trgt.setSendStusMsg("GET_TOKEN_ERROR");
                     continue;
@@ -90,20 +104,20 @@ public class SendService implements ISendService {
                 //MEMBER 테이블에 토큰 정보 업데이트
                 repository.updateTokenByRefresh(trgt);
                 log.info("TOKEN UPDATE!!!!");
-
             }
 
             // 둘 다 만료라면 DB에 SEND_CD 'E'(만료)로 업데이트
             else if (isExpireAccessToken && isExpireRefreshToken) {
                 trgt.setSendCd("E");
-                trgt.setSendStusMsg("ALIM SEQ : " + trgt.getAlimSeq() + "EXPIRED_TOKEN");
+                trgt.setSendStusMsg("ALIM SEQ : " + trgt.getContentSeq() + "EXPIRED_TOKEN");
                 continue;
             }
 
+            // 발송처리
             try {
                 sendMsg(trgt);
             } catch (Exception e) {
-                log.error("ALIM SEQ : " + trgt.getAlimSeq() +  "SEND ERROR : " +e.getMessage());
+                log.error("ALIM SEQ : " + trgt.getContentSeq() +  "SEND ERROR : " +e.getMessage());
                 trgt.setSendCd("E");
                 trgt.setSendStusMsg("SEND_ERROR");
                 continue;
@@ -114,11 +128,21 @@ public class SendService implements ISendService {
         }
 
         repository.insert(sendList);
-        repository.updateSendCd(sendList);
 
+        // 즉시 발송은 원부 후처리 없이 종료
+        if (isScheduleJob) {
+            log.info("SCHEDULER END!!!!");
+            return;
+        }
 
-        log.info("SCHEDULER END!!!!");
+        // alim 테이블 후처리 (notepad 테이블은 필요없음)
+        List<SendVO> alimSendList = sendList.stream()
+                                            .filter(t -> "ALIMTALK".equals(t.getContentType()))
+                                            .collect(Collectors.toList());
 
+        if (alimSendList.size() > 0) repository.updateAlimSendCd(alimSendList);
+
+        log.info("SENDACTION END!!!!");
     }
 
     private OauthTokenDto getRefreshToken(String refreshToken) throws Exception {

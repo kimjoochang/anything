@@ -46,15 +46,15 @@ CREATE TABLE MEMBER (
 
 CREATE TABLE SEND (
                       SEND_SEQ BIGINT NOT NULL AUTO_INCREMENT,
-                      ALIM_SEQ BIGINT NOT NULL,
+                      CONTENT_TYPE VARCHAR(50) NOT NULL,
+                      CONTENT_SEQ BIGINT NOT NULL,
                       MEMBER_ID BIGINT NOT NULL,
                       SEND_STUS_MSG VARCHAR(2000) NOT NULL,
                       REG_ID BIGINT NOT NULL,
                       REG_DT DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                       MODI_ID BIGINT NULL,
                       MODI_DT DATETIME NULL,
-                      PRIMARY KEY (SEND_SEQ, ALIM_SEQ, MEMBER_ID),
-                      FOREIGN KEY (ALIM_SEQ) REFERENCES Alim(ALIM_SEQ),
+                      PRIMARY KEY (SEND_SEQ, CONTENT_TYPE, CONTENT_SEQ, MEMBER_ID),
                       FOREIGN KEY (MEMBER_ID) REFERENCES Alim(MEMBER_ID)
 );
 

@@ -14,5 +14,6 @@ public interface SendRepository {
     List<SendVO> list(String sendDt);
     int insert(List<SendVO> successSendList);
     int updateTokenByRefresh(SendVO alimVO);
-    int updateSendCd(List<SendVO> sendList);
+    int updateAlimSendCd(List<SendVO> sendList);
+    int updateNotepadSendCd(List<SendVO> sendList);
 }
